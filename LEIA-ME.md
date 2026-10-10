@@ -18,9 +18,13 @@ Se aparecer **Modo local**, é porque o banco ainda não está ligado.
 
 > O primeiro acesso depois de ligar o banco envia os dados que estavam naquele navegador. Então abra primeiro no computador onde você já tem os clientes cadastrados.
 
-## 3. (Opcional) Legenda com IA de verdade
-Em **Settings > Environment Variables** adicione `ANTHROPIC_API_KEY` com sua chave da Anthropic e faça Redeploy.
-Sem a chave, o sistema usa legendas-modelo prontas.
+## 3. Legenda feita pela IA olhando a imagem
+Sem essa etapa o sistema usa legendas-modelo genéricas (e avisa na tela).
+1. Crie uma chave em console.anthropic.com > **API Keys** (precisa ter créditos).
+2. Na Vercel: **Settings > Environment Variables** > adicione `ANTHROPIC_API_KEY` = sua chave.
+3. **Redeploy**.
+
+A partir daí, ao clicar em Salvar com a legenda em branco, a IA analisa a foto (pedra, cor, ambiente) e escreve a legenda sobre o que aparece nela.
 
 ## Estrutura
 - `index.html` — o sistema
