@@ -18,16 +18,7 @@ Se aparecer **Modo local**, é porque o banco ainda não está ligado.
 
 > O primeiro acesso depois de ligar o banco envia os dados que estavam naquele navegador. Então abra primeiro no computador onde você já tem os clientes cadastrados.
 
-## 3. Legenda com IA (aba "Legenda IA")
-Envie a arte ou o print do post e clique em **Gerar legenda**. A IA lê a imagem (textos, logo, pedra, ambiente) e escreve sobre o que está nela.
-Para funcionar:
-1. Crie uma chave em console.anthropic.com > **API Keys** (a conta precisa ter créditos).
-2. Na Vercel: **Settings > Environment Variables** > `ANTHROPIC_API_KEY` = sua chave.
-3. **Redeploy**.
-Se algo estiver errado (sem chave, sem crédito, imagem inválida), a tela mostra o motivo exato. Ela nunca inventa uma legenda genérica.
-
 ## Estrutura
 - `index.html` — o sistema
 - `api/state.js` — salva e lê clientes, membros e posts
 - `api/img.js` — salva e entrega as imagens
-- `api/caption.js` — gera a legenda com IA (opcional)
