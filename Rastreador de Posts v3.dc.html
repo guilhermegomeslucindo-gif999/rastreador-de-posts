@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0a0a0a;color:#f5f5f5;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:8px;}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes overlayIn{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulseGold{0%{box-shadow:0 0 0 0 oklch(74% 0.15 152 / .5);}70%{box-shadow:0 0 0 14px oklch(74% 0.15 152 / 0);}100%{box-shadow:0 0 0 0 oklch(74% 0.15 152 / 0);}}
+select,input,textarea{font-family:'Inter',sans-serif;}
+input::placeholder,textarea::placeholder{color:#737373;}
+a{color:#ff7a1a;}
+a:hover{color:#ff9447;}
+.rp-topbar{display:none;}
+.rp-backdrop{display:none;}
+@media (max-width:900px){
+  .rp-shell{flex-direction:column;}
+  .rp-topbar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:150;background:rgba(11,10,9,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.07);padding:10px 12px;}
+  .rp-sidebar{position:fixed!important;top:0!important;left:0;bottom:0;height:100dvh!important;width:84vw!important;max-width:300px;z-index:200;transform:translateX(-102%);transition:transform .26s cubic-bezier(.16,1,.3,1);box-shadow:0 0 44px rgba(0,0,0,.65);}
+  .rp-sidebar.rp-open{transform:none;}
+  .rp-sidebar button{min-height:40px;}
+  .rp-backdrop.rp-open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:190;}
+  .rp-pad{padding:18px 14px 88px!important;}
+  .rp-g4{grid-template-columns:repeat(2,1fr)!important;}
+  .rp-g2,.rp-gmodal{grid-template-columns:1fr!important;}
+  .rp-g3>div{padding:14px 12px!important;}
+  .rp-modal{padding:22px 16px!important;width:96%!important;max-height:88dvh!important;overflow-y:auto!important;}
+  .rp-pad input,.rp-pad select,.rp-pad textarea,.rp-modal input,.rp-modal select,.rp-modal textarea{font-size:16px!important;}
+  .rp-pad button{min-height:40px;}
+  .rp-abs{position:static!important;margin-top:12px!important;top:auto!important;right:auto!important;}
+  .rp-absrow{position:static!important;margin-top:12px!important;top:auto!important;right:auto!important;justify-content:flex-start;}
+  .rp-abspad{padding-right:0!important;}
+  .rp-pad h1{font-size:20px!important;}
+}
+@media (max-width:430px){
+  .rp-g4,.rp-g3{grid-template-columns:1fr 1fr!important;}
+}
+</style>
+<template id="__bundler_thumbnail" data-bg-color="#0a0a0a">
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="800" fill="#0a0a0a"></rect>
+<rect x="360" y="240" width="480" height="320" rx="64" fill="#ff7a1a"></rect>
+<text x="600" y="455" text-anchor="middle" font-family="Poppins, sans-serif" font-size="150" font-weight="700" fill="#0a0a0a">QH4</text>
+</svg>
+</template>
+</helmet>
+
+<div class="rp-shell" style="display:flex;min-height:100vh;background:#0a0a0a;font-family:'Inter',sans-serif;">
+
+  <header class="rp-topbar">
+    <button onClick="{{ toggleNav }}" aria-label="Menu" style="display:flex;flex-direction:column;justify-content:center;gap:4px;width:42px;height:42px;padding:0 11px;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:10px;cursor:pointer;flex-shrink:0;">
+      <span style="display:block;height:2px;width:100%;background:#f5f5f5;border-radius:2px;"></span>
+      <span style="display:block;height:2px;width:100%;background:#f5f5f5;border-radius:2px;"></span>
+      <span style="display:block;height:2px;width:100%;background:#f5f5f5;border-radius:2px;"></span>
+    </button>
+    <div style="width:30px;height:30px;border-radius:8px;background:#ff7a1a;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:11px;color:#0a0a0a;flex-shrink:0;">QH4</div>
+    <div style="min-width:0;">
+      <div style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ navTitle }}</div>
+      <div style="font-size:10px;color:#737373;letter-spacing:.4px;">Rastreador de Posts</div>
+    </div>
+    <span style="margin-left:auto;{{ syncDotStyle }}"></span>
+  </header>
+  <div class="rp-backdrop {{ navCls }}" onClick="{{ closeNav }}"></div>
+
+  <aside class="rp-sidebar {{ navCls }}" style="width:236px;flex-shrink:0;background:#131313;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh;">
+    <div style="display:flex;align-items:center;gap:10px;padding:2px 6px 16px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:14px;">
+      <div style="width:34px;height:34px;border-radius:9px;background:#ff7a1a;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;color:#0a0a0a;flex-shrink:0;">QH4</div>
+      <div>
+        <div style="font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:600;color:#f5f5f5;line-height:1.2;">Rastreador</div>
+        <div style="font-size:10px;color:#737373;letter-spacing:.4px;">de Posts</div>
+      </div>
+    </div>
+
+    <div style="position:relative;padding:0 4px 12px;" ref="{{ qsearchWrapRef }}">
+      <input type="text" placeholder="Buscar cliente..." value="{{ qsearch }}" onInput="{{ onQSearch }}" onFocus="{{ onQSearchFocus }}"
+        style="font-size:12px;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;color:#f5f5f5;width:100%;outline:none;"/>
+      <sc-if value="{{ qShow }}">
+        <div style="position:absolute;top:calc(100% - 2px);left:4px;right:4px;background:#222222;border:1px solid rgba(255,255,255,.12);border-radius:8px;max-height:260px;overflow-y:auto;z-index:60;box-shadow:0 14px 34px rgba(0,0,0,.55);">
+          <sc-if value="{{ qHasResults }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ qResults }}" as="qr" hint-placeholder-count="2">
+              <div onClick="{{ qr.onSelect }}" style="padding:9px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="font-weight:600;color:#f5f5f5;">{{ qr.name }}</div>
+                <div style="font-size:10px;color:#737373;margin-top:1px;">{{ qr.meta }}</div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ qNoResults }}">
+            <div style="padding:10px 12px;font-size:11px;color:#737373;">Nenhum cliente encontrado.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ hasRecent }}">
+      <div style="padding:0 8px 12px;">
+        <div style="font-size:9px;font-weight:600;color:#5c5c5c;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;">Recentes</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <sc-for list="{{ recentClientChips }}" as="rc2" hint-placeholder-count="0">
+            <button onClick="{{ rc2.onClick }}" style="text-align:left;background:transparent;border:none;color:#a3a3a3;font-size:11px;padding:5px 8px;border-radius:6px;cursor:pointer;">{{ rc2.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <nav style="display:flex;flex-direction:column;gap:14px;flex:1;overflow-y:auto;">
+      <div>
+        <div style="font-size:9px;font-weight:600;color:#5c5c5c;text-transform:uppercase;letter-spacing:1.2px;padding:0 10px 6px;">Visão geral</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button onClick="{{ goDashboard }}" style="{{ navDashStyle }}">
+            <div style="width:14px;height:14px;display:flex;flex-wrap:wrap;gap:2px;flex-shrink:0;">
+              <div style="{{ navDashDotStyle }}"></div><div style="{{ navDashDotStyle }}"></div>
+              <div style="{{ navDashDotStyle }}"></div><div style="{{ navDashDotStyle }}"></div>
+            </div>
+            Dashboard
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;font-weight:600;color:#5c5c5c;text-transform:uppercase;letter-spacing:1.2px;padding:0 10px 6px;">Operação</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button onClick="{{ goTracker }}" style="{{ navTrackerStyle }}">
+            <div style="{{ navTrackerBoxStyle }}"><div style="{{ navTrackerCircleStyle }}"></div></div>
+            Posts
+          </button>
+          <button onClick="{{ goCriativos }}" style="{{ navCriativosStyle }}">
+            <div style="{{ navCriativosBoxStyle }}"><div style="{{ navCriativosSunStyle }}"></div></div>
+            Criativos
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;font-weight:600;color:#5c5c5c;text-transform:uppercase;letter-spacing:1.2px;padding:0 10px 6px;">Equipe</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button onClick="{{ goClientes }}" style="{{ navClientesStyle }}">
+            <div style="width:16px;height:14px;position:relative;flex-shrink:0;">
+              <div style="{{ navClientesCircle1Style }}"></div>
+              <div style="{{ navClientesCircle2Style }}"></div>
+            </div>
+            Clientes e Equipe
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#a3a3a3;padding:14px 10px 0;border-top:1px solid rgba(255,255,255,.06);"><span style="{{ syncDotStyle }}"></span>{{ syncLabel }}</div>
+  </aside>
+
+  <main class="rp-main" style="flex:1;min-width:0;">
+    <div class="rp-pad" style="max-width:1120px;margin:0 auto;padding:32px 32px 90px;">
+      <sc-if value="{{ showDbWarn }}">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(255,90,79,.1);border:1px solid rgba(255,90,79,.35);color:#ffb3ad;border-radius:12px;padding:12px 14px;margin-bottom:20px;font-size:12px;line-height:1.6;">
+          <span style="font-size:15px;">⚠️</span><span>{{ dbWarnText }}</span>
+        </div>
+      </sc-if>
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <div key="dashboard" style="animation:viewIn .3s cubic-bezier(.16,1,.3,1);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:26px;flex-wrap:wrap;">
+            <div>
+              <h1 style="font-family:'Poppins',sans-serif;font-size:23px;font-weight:700;letter-spacing:-.3px;margin:0;">Dashboard</h1>
+              <p style="font-size:12px;color:#737373;margin:4px 0 0;">Visão geral da agência</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="min-width:100px;">
+                <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ano</div>
+                <select value="{{ dashYear }}" onChange="{{ setDashYear }}" style="{{ selectStyle }}">
+                  <sc-for list="{{ yearsList }}" as="y1" hint-placeholder-count="2"><option value="{{ y1.key }}">{{ y1.label }}</option></sc-for>
+                </select>
+              </div>
+              <div style="min-width:150px;">
+                <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Mês</div>
+                <select value="{{ dashMonth }}" onChange="{{ setDashMonth }}" style="{{ selectStyle }}">
+                  <sc-for list="{{ dashMonthsList }}" as="mo" hint-placeholder-count="12"><option value="{{ mo.key }}">{{ mo.label }}</option></sc-for>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="rp-g4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px 20px;">
+                <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">{{ k.label }}</div>
+                <div style="{{ k.valStyle }}">{{ k.val }}<small style="font-size:14px;color:#737373;font-weight:600;">{{ k.suffix }}</small></div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ dashTrendText }}"><div style="{{ dashTrendStyle }}">{{ dashTrendText }}</div></sc-if>
+
+          <div style="margin-top:14px;">
+            <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;">
+              <div style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;margin-bottom:18px;">Conclusão por mês · agência</div>
+              <div style="display:flex;align-items:stretch;gap:6px;height:180px;min-width:0;">
+                <sc-for list="{{ monthBars }}" as="b" hint-placeholder-count="9">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;min-width:0;">
+                    <div style="font-size:10px;color:#737373;font-variant-numeric:tabular-nums;">{{ b.count }}</div>
+                    <div style="flex:1;width:100%;max-width:32px;background:#222222;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden;">
+                      <div style="{{ b.fillStyle }}"></div>
+                    </div>
+                    <div style="{{ b.lblStyle }}">{{ b.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin:30px 0 12px;">Squads</div>
+          <div class="rp-g4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <sc-for list="{{ squadCards }}" as="sc" hint-placeholder-count="4">
+              <div style="{{ sc.cardStyle }}">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                  <span style="font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;">{{ sc.label }}</span>
+                  <span style="{{ sc.badgeStyle }}">{{ sc.badgeLabel }}</span>
+                </div>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+                  <div style="font-size:11px;color:#737373;"><b style="display:block;font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;color:#f5f5f5;margin-bottom:2px;">{{ sc.members }}</b>membros</div>
+                  <div style="font-size:11px;color:#737373;"><b style="display:block;font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;color:#f5f5f5;margin-bottom:2px;">{{ sc.clients }}</b>clientes</div>
+                  <div style="font-size:11px;color:#737373;"><b style="display:block;font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;color:#f5f5f5;margin-bottom:2px;">{{ sc.frac }}</b>posts</div>
+                </div>
+                <div style="height:3px;background:#222222;border-radius:3px;overflow:hidden;"><div style="{{ sc.barStyle }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:30px 0 12px;flex-wrap:wrap;">
+            <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;">Clientes cadastrados · {{ dashClientsCount }}</div>
+            <button onClick="{{ goClientes }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">+ Novo cliente</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-if value="{{ hasDashClients }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ dashClients }}" as="dc" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:10px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ dc.name }}</div>
+                    <div style="font-size:11px;color:#737373;margin-top:2px;">{{ dc.meta }}</div>
+                  </div>
+                  <button onClick="{{ dc.onOpen }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">Abrir</button>
+                  <button onClick="{{ dc.onRemove }}" style="background:rgba(255,90,79,.12);color:#ff7b72;border:1px solid rgba(255,90,79,.35);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">Excluir</button>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ noDashClients }}"><div style="text-align:center;padding:24px;color:#737373;font-size:13px;background:#131313;border:1px dashed rgba(255,255,255,.1);border-radius:10px;">Nenhum cliente cadastrado ainda.</div></sc-if>
+          </div>
+
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin:30px 0 12px;">⚠ Clientes atrasados · ação rápida</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-if value="{{ hasAlerts }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ alertItems }}" as="al" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#131313;border:1px solid oklch(66% 0.19 25 / .18);border-radius:10px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:140px;">
+                    <div style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;">{{ al.client }}</div>
+                    <div style="font-size:10px;color:#737373;margin-top:2px;">{{ al.meta }} · <span style="{{ al.badgeStyle }}">{{ al.badgeLabel }}</span></div>
+                  </div>
+                  <button onClick="{{ al.onGo }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:7px;padding:7px 15px;font-size:11px;font-weight:600;cursor:pointer;">Postar agora →</button>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ noAlerts }}">
+              <div style="text-align:center;padding:24px;color:#737373;"><p style="font-size:13px;">🎉 Nenhum cliente atrasado este mês. Tudo em ordem!</p></div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ TRACKER / POSTS ═══ -->
+      <sc-if value="{{ isTracker }}">
+        <div key="tracker" style="animation:viewIn .3s cubic-bezier(.16,1,.3,1);">
+          <div style="margin-bottom:26px;"><h1 style="font-family:'Poppins',sans-serif;font-size:23px;font-weight:700;letter-spacing:-.3px;margin:0;">Posts</h1><p style="font-size:12px;color:#737373;margin:4px 0 0;">Crie, publique e acompanhe os posts de cada cliente.</p></div>
+
+          <div style="margin:-6px 0 22px;">
+            <input type="text" placeholder="Buscar cliente pelo nome..." value="{{ psearch }}" onInput="{{ onPSearch }}" style="font-size:13px;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px;color:#f5f5f5;width:100%;outline:none;"/>
+            <sc-if value="{{ pShow }}">
+              <div style="margin-top:6px;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden;">
+                <sc-for list="{{ pResults }}" as="pr" hint-placeholder-count="0">
+                  <div onClick="{{ pr.onSelect }}" style="padding:11px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                    <span style="font-size:13px;font-weight:600;color:#f5f5f5;">{{ pr.name }}</span>
+                    <span style="font-size:11px;color:#737373;white-space:nowrap;">{{ pr.meta }}</span>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ pNoResults }}"><div style="padding:11px 14px;font-size:12px;color:#737373;">Nenhum cliente encontrado.</div></sc-if>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px;">Squad</div>
+          <div style="display:flex;align-items:stretch;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+            <div style="display:flex;gap:6px;">
+              <sc-for list="{{ squadBtns }}" as="sb" hint-placeholder-count="4">
+                <button onClick="{{ sb.onClick }}" style="{{ sb.style }}">{{ sb.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:center;padding:8px 18px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#131313;min-width:160px;">
+              <div style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;">{{ squadChipLabel }}</div>
+              <div style="font-size:10px;color:#737373;text-transform:uppercase;letter-spacing:.8px;margin-top:3px;">{{ squadChipMeta }}</div>
+            </div>
+          </div>
+
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px;">Membro</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;">
+            <sc-for list="{{ memberChips }}" as="mc" hint-placeholder-count="3">
+              <button onClick="{{ mc.onClick }}" style="{{ mc.style }}">{{ mc.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;">
+            <div style="flex:1;min-width:150px;">
+              <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Cliente</div>
+              <select value="{{ clientSel }}" onChange="{{ setClientSel }}" style="{{ selectStyle }}">
+                <sc-if value="{{ hasClientOptions }}" hint-placeholder-val="{{ true }}">
+                  <sc-for list="{{ clientOptions }}" as="co" hint-placeholder-count="3"><option value="{{ co.key }}">{{ co.label }}</option></sc-for>
+                </sc-if>
+                <sc-if value="{{ noClientOptions }}"><option value="">Nenhum cliente</option></sc-if>
+              </select>
+            </div>
+            <div style="flex:0 0 110px;min-width:100px;">
+              <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ano</div>
+              <select value="{{ trackerYear }}" onChange="{{ setTrackerYear }}" style="{{ selectStyle }}">
+                <sc-for list="{{ yearsList }}" as="y2" hint-placeholder-count="2"><option value="{{ y2.key }}">{{ y2.label }}</option></sc-for>
+              </select>
+            </div>
+            <div style="flex:1;min-width:150px;">
+              <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Mês</div>
+              <select value="{{ month }}" onChange="{{ setMonth }}" style="{{ selectStyle }}">
+                <sc-for list="{{ trackerMonthsList }}" as="mo2" hint-placeholder-count="12"><option value="{{ mo2.key }}">{{ mo2.label }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+
+          <sc-if value="{{ hasClient }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ ritmoStyle }}"><span style="font-size:14px;flex-shrink:0;">{{ ritmoIcon }}</span><span>{{ ritmoText }}</span></div>
+
+            <div style="background:#131313;border:1px solid rgba(255,122,26,.28);border-radius:14px;padding:14px 16px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-size:15px;flex-shrink:0;margin-top:1px;">📌</span>
+              <div style="flex:1;">
+                <div style="font-size:10px;font-weight:600;color:#ff7a1a;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lembrete fixo do cliente</div>
+                <div style="{{ pinNoteStyle }}">{{ pinNoteText }}</div>
+              </div>
+              <button onClick="{{ openPinNote }}" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;font-size:10px;color:#737373;cursor:pointer;flex-shrink:0;">Editar</button>
+            </div>
+
+            <div class="rp-g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px;">
+              <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px 20px;"><div style="font-family:'Poppins',sans-serif;font-size:32px;font-weight:700;color:#f5f5f5;line-height:1;margin-bottom:6px;">{{ sDone }}</div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;">Realizados</div></div>
+              <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px 20px;"><div style="font-family:'Poppins',sans-serif;font-size:32px;font-weight:700;color:#a3a3a3;line-height:1;margin-bottom:6px;">{{ sLeft }}</div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;">Pendentes</div></div>
+              <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px 20px;"><div style="padding:6px 0;"><span style="{{ sBadgeStyle }}">{{ sBadgeLabel }}</span></div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-top:8px;">Status</div></div>
+            </div>
+
+            <div style="margin-bottom:24px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;"><span style="font-size:12px;color:#a3a3a3;font-weight:500;">Progresso do mês</span><span style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;">{{ progFrac }}</span></div>
+              <div style="height:3px;background:#222222;border-radius:3px;overflow:hidden;"><div style="{{ progBarStyle }}"></div></div>
+            </div>
+
+            <div style="{{ postsContainerStyle }}">
+              <sc-for list="{{ postsGrid }}" as="p" hint-placeholder-count="4">
+                <div style="{{ p.cardStyle }}">
+                  <div style="{{ p.thumbStyle }}"><sc-if value="{{ p.noImg }}"><span style="font-size:9px;color:#737373;letter-spacing:.4px;">sem imagem</span></sc-if></div>
+                  <div style="{{ p.mainStyle }}">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                      <span style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;flex:1;">{{ p.title }}</span>
+                      <span style="{{ p.badgeStyle }}">{{ p.badgeLabel }}</span>
+                    </div>
+                    <div style="{{ p.subStyle }}">{{ p.sub }}</div>
+                    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;">
+                      <sc-if value="{{ p.showAdd }}">
+                        <button onClick="{{ p.onAdd }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">+ Adicionar</button>
+                      </sc-if>
+                      <sc-if value="{{ p.showManage }}">
+                        <button onClick="{{ p.onPublish }}" style="background:oklch(74% 0.15 152);color:#06210f;border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">Postar</button>
+                        <button onClick="{{ p.onEdit }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">Editar</button>
+                      </sc-if>
+                      <sc-if value="{{ p.showDone }}">
+                        <button onClick="{{ p.onView }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">Ver</button>
+                        <button onClick="{{ p.onEdit }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">Editar</button>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);">
+              <button onClick="{{ gerarWpp }}" style="background:#25d366;color:#06280f;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">📲 Aviso WhatsApp</button>
+              <button onClick="{{ resetMonth }}" style="background:oklch(66% 0.19 25 / .14);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Limpar mês</button>
+            </div>
+
+            <sc-if value="{{ wppShown }}">
+              <div style="margin-top:20px;">
+                <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px;">Mensagem gerada</div>
+                <div style="background:#131313;border:1px solid oklch(72% 0.13 152 / .18);border-radius:14px;padding:18px;position:relative;">
+                  <div class="rp-abspad" style="font-size:13px;line-height:1.8;white-space:pre-line;padding-right:150px;">{{ wppText }}</div>
+                  <div class="rp-absrow" style="position:absolute;top:14px;right:14px;display:flex;gap:6px;flex-wrap:wrap;">
+                    <sc-if value="{{ wppHasLink }}"><a href="{{ wppLink }}" target="_blank" style="background:#25d366;color:#06280f;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none;">Abrir WhatsApp</a></sc-if>
+                    <button onClick="{{ copyWpp }}" style="background:#222222;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:6px 12px;font-size:11px;color:#a3a3a3;cursor:pointer;">{{ copyWppLabel }}</button>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ noClient }}">
+            <div style="text-align:center;padding:52px 20px;color:#737373;">
+              <div style="font-size:28px;margin-bottom:12px;opacity:.5;">📭</div>
+              <p style="font-size:13px;line-height:1.7;margin-bottom:16px;">Nenhum cliente cadastrado para este membro.</p>
+              <button onClick="{{ goClientes }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cadastrar cliente →</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ═══ CRIATIVOS ═══ -->
+      <sc-if value="{{ isCriativos }}">
+        <div key="criativos" style="animation:viewIn .3s cubic-bezier(.16,1,.3,1);">
+          <div style="margin-bottom:26px;"><h1 style="font-family:'Poppins',sans-serif;font-size:23px;font-weight:700;letter-spacing:-.3px;margin:0;">Criativos</h1><p style="font-size:12px;color:#737373;margin:4px 0 0;">Tudo que foi salvo e postado, por membro e cliente.</p></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;">
+            <div style="flex:1;min-width:140px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Squad</div><select value="{{ criSquad }}" onChange="{{ setCriSquad }}" style="{{ selectStyle }}"><sc-for list="{{ squadsList }}" as="sqo" hint-placeholder-count="4"><option value="{{ sqo.key }}">{{ sqo.label }}</option></sc-for></select></div>
+            <div style="flex:1;min-width:140px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Membro</div><select value="{{ criMember }}" onChange="{{ setCriMember }}" style="{{ selectStyle }}"><sc-for list="{{ criMemberOptions }}" as="cm" hint-placeholder-count="2"><option value="{{ cm.key }}">{{ cm.label }}</option></sc-for></select></div>
+            <div style="flex:1;min-width:140px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Cliente</div><select value="{{ criClient }}" onChange="{{ setCriClient }}" style="{{ selectStyle }}"><sc-if value="{{ criHasClients }}" hint-placeholder-val="{{ true }}"><sc-for list="{{ criClientOptions }}" as="cc" hint-placeholder-count="3"><option value="{{ cc.key }}">{{ cc.label }}</option></sc-for></sc-if><sc-if value="{{ criNoClients }}"><option value="">Nenhum cliente</option></sc-if></select></div>
+            <div style="flex:1;min-width:140px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Mostrar</div><select value="{{ criFilter }}" onChange="{{ setCriFilter }}" style="{{ selectStyle }}"><option value="all">Todos</option><option value="posted">Só postados</option><option value="ready">Só prontos (não postados)</option></select></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:#a3a3a3;">{{ criCountLabel }}</span>
+            <button onClick="{{ criGoToPosts }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">Abrir em Posts →</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+            <sc-if value="{{ hasCriativos }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ criativosImgs }}" as="ci" hint-placeholder-count="0">
+                <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
+                  <div style="{{ ci.bgStyle }}"><sc-if value="{{ ci.noImg }}"><span style="font-size:9px;color:#737373;">sem imagem</span></sc-if></div>
+                  <div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;"><span style="font-size:10px;color:#a3a3a3;">{{ ci.meta }}</span><span style="{{ ci.badgeStyle }}">{{ ci.badgeLabel }}</span></div>
+                    <div style="font-size:11px;color:#737373;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ ci.cap }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ noCriativos }}"><div style="text-align:center;padding:52px 20px;color:#737373;grid-column:1/-1;"><div style="font-size:28px;margin-bottom:12px;opacity:.5;">🖼</div><p style="font-size:13px;">Nenhum criativo aqui ainda.<br/>Adicione imagens nos posts e clique em Salvar.</p></div></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ CLIENTES & EQUIPE ═══ -->
+      <sc-if value="{{ isClientes }}">
+        <div key="clientes" style="animation:viewIn .3s cubic-bezier(.16,1,.3,1);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:26px;flex-wrap:wrap;">
+            <div><h1 style="font-family:'Poppins',sans-serif;font-size:23px;font-weight:700;letter-spacing:-.3px;margin:0;">Clientes &amp; Equipe</h1><p style="font-size:12px;color:#737373;margin:4px 0 0;">Cadastre clientes e membros dos squads.</p></div>
+            <div style="display:flex;gap:8px;">
+              <button onClick="{{ exportBackup }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;">⬇ Exportar backup</button>
+              <button onClick="{{ triggerImport }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;">⬆ Importar backup</button>
+              <input type="file" accept=".json" ref="{{ importRef }}" onChange="{{ onImportFile }}" style="display:none;"/>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="flex:1;max-width:220px;height:4px;background:#222222;border-radius:3px;overflow:hidden;"><div style="{{ storageBarStyle }}"></div></div>
+            <span style="font-size:10px;color:#737373;">{{ storageLabel }}</span>
+          </div>
+
+          <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:24px;">
+            <button onClick="{{ goSubClientes }}" style="{{ subTabClientesStyle }}">Clientes</button>
+            <button onClick="{{ goSubMembros }}" style="{{ subTabMembrosStyle }}">Membros</button>
+          </div>
+
+          <sc-if value="{{ isSubClientes }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:22px;margin-bottom:28px;">
+              <div style="font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;margin-bottom:4px;">Novo cliente</div>
+              <div style="font-size:12px;color:#737373;margin-bottom:18px;">Adicionado para todos os meses automaticamente</div>
+              <div class="rp-g2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Squad</div><select value="{{ ncSquad }}" onChange="{{ setNcSquad }}" style="{{ selectStyle }}"><sc-for list="{{ squadsList }}" as="sqo" hint-placeholder-count="4"><option value="{{ sqo.key }}">{{ sqo.label }}</option></sc-for></select></div>
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Membro</div><select value="{{ ncMember }}" onChange="{{ setNcMember }}" style="{{ selectStyle }}"><sc-for list="{{ ncMemberOptions }}" as="nm" hint-placeholder-count="3"><option value="{{ nm.key }}">{{ nm.label }}</option></sc-for></select></div>
+              </div>
+              <div class="rp-g2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Nome do cliente</div><input type="text" placeholder="Ex: Marmoraria São Paulo" value="{{ ncName }}" onInput="{{ setNcName }}" onKeyDown="{{ ncEnter }}" style="{{ inputStyle }}"/></div>
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Posts por mês</div>
+                  <select value="{{ ncPosts }}" onChange="{{ setNcPosts }}" style="{{ selectStyle }}"><sc-for list="{{ postCountOptions }}" as="pc2" hint-placeholder-count="10"><option value="{{ pc2 }}">{{ pc2 }}</option></sc-for></select>
+                </div>
+              </div>
+              <div class="rp-g2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">WhatsApp (opcional)</div><input type="text" placeholder="Ex: 5511999999999" value="{{ ncPhone }}" onInput="{{ setNcPhone }}" style="{{ inputStyle }}"/></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button onClick="{{ addClient }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cadastrar</button>
+                <sc-if value="{{ ncMsg }}"><div style="font-size:12px;{{ ncMsgStyle }}">{{ ncMsg }}</div></sc-if>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:12px;">Clientes cadastrados</div>
+            <div>
+              <sc-if value="{{ hasClientRows }}" hint-placeholder-val="{{ true }}">
+                <sc-for list="{{ clientRows }}" as="cr" hint-placeholder-count="4">
+                  <sc-if value="{{ cr.isHeader }}"><div style="font-size:11px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px;">{{ cr.text }}</div></sc-if>
+                  <sc-if value="{{ cr.isSub }}"><div style="font-size:11px;color:#737373;margin:10px 0 6px 4px;">{{ cr.text }}</div></sc-if>
+                  <sc-if value="{{ cr.isItem }}">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;margin-bottom:6px;background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:10px;gap:10px;">
+                      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                        <span style="{{ cr.avatarDot }}"></span>
+                        <button onClick="{{ cr.onFav }}" style="{{ cr.favStyle }}">{{ cr.favLabel }}</button>
+                        <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">{{ cr.name }}</div><div style="font-size:11px;color:#737373;">{{ cr.meta }}</div></div>
+                      </div>
+                      <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button onClick="{{ cr.onDup }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Duplicar</button>
+                        <button onClick="{{ cr.onEdit }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Editar</button>
+                        <button onClick="{{ cr.onRemove }}" style="background:oklch(66% 0.19 25 / .14);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">Excluir</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ noClientRows }}"><div style="text-align:center;padding:40px 20px;color:#737373;"><p style="font-size:13px;">Nenhum cliente cadastrado.</p></div></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSubMembros }}">
+            <div style="background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:22px;margin-bottom:28px;">
+              <div style="font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;margin-bottom:4px;">Novo membro</div>
+              <div style="font-size:12px;color:#737373;margin-bottom:18px;">Adiciona um membro a um dos squads (A, B, C ou D)</div>
+              <div class="rp-g2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Squad</div><select value="{{ nmSquad }}" onChange="{{ setNmSquad }}" style="{{ selectStyle }}"><sc-for list="{{ squadsList }}" as="sqo" hint-placeholder-count="4"><option value="{{ sqo.key }}">{{ sqo.label }}</option></sc-for></select></div>
+                <div><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Nome do membro</div><input type="text" placeholder="Ex: Pedro" value="{{ nmName }}" onInput="{{ setNmName }}" onKeyDown="{{ nmEnter }}" style="{{ inputStyle }}"/></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button onClick="{{ addMember }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cadastrar</button>
+                <sc-if value="{{ nmMsg }}"><div style="font-size:12px;{{ nmMsgStyle }}">{{ nmMsg }}</div></sc-if>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1.4px;margin-bottom:12px;">Membros cadastrados</div>
+            <div>
+              <sc-if value="{{ hasMemberRows }}" hint-placeholder-val="{{ true }}">
+                <sc-for list="{{ memberRows }}" as="mrr" hint-placeholder-count="4">
+                  <sc-if value="{{ mrr.isHeader }}"><div style="font-size:11px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px;">{{ mrr.text }}</div></sc-if>
+                  <sc-if value="{{ mrr.isItem }}">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;margin-bottom:6px;background:#131313;border:1px solid rgba(255,255,255,.06);border-radius:10px;">
+                      <div><div style="font-size:13px;font-weight:600;margin-bottom:2px;">{{ mrr.name }}</div><div style="font-size:11px;color:#737373;">{{ mrr.meta }}</div></div>
+                      <button onClick="{{ mrr.onRemove }}" style="background:oklch(66% 0.19 25 / .14);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;">Remover</button>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ noMemberRows }}"><div style="text-align:center;padding:40px 20px;color:#737373;"><p style="font-size:13px;">Nenhum membro cadastrado.</p></div></sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<sc-if value="{{ toastShow }}">
+  <div style="position:fixed;bottom:22px;right:22px;background:#222222;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 18px;font-size:12px;color:#f5f5f5;box-shadow:0 14px 34px rgba(0,0,0,.5);z-index:1000;animation:toastIn .25s ease;{{ toastAccentStyle }}">{{ toastMsg }}</div>
+</sc-if>
+
+<!-- ═══ MODALS ═══ -->
+<sc-if value="{{ isEditorModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:800px;width:94%;max-height:90vh;overflow-y:auto;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <button onClick="{{ closeModal }}" style="position:absolute;top:14px;right:14px;background:#222222;border:1px solid rgba(255,255,255,.12);border-radius:6px;width:28px;height:28px;color:#a3a3a3;cursor:pointer;font-size:12px;">✕</button>
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px;">{{ modalTitle }}</div>
+      <div style="font-size:12px;color:#a3a3a3;line-height:1.7;margin-bottom:18px;">Adicione a imagem e a legenda e clique em Salvar. O post vai para Criativos.</div>
+      <div class="rp-gmodal" style="display:grid;grid-template-columns:1fr 300px;gap:20px;margin:16px 0 4px;">
+        <div>
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Imagem do post</div>
+          <div style="border:1px dashed rgba(255,255,255,.12);border-radius:10px;min-height:150px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+            <sc-if value="{{ edHasImg }}" hint-placeholder-val="{{ false }}">
+              <div style="position:relative;width:100%;text-align:center;">
+                <div style="{{ edImgBigStyle }}"></div>
+                <button onClick="{{ edRemoveImg }}" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.12);border-radius:6px;width:24px;height:24px;font-size:11px;color:#f5f5f5;cursor:pointer;">✕</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ edNoImg }}">
+              <label style="display:flex;flex-direction:column;align-items:center;gap:6px;color:#737373;font-size:11px;cursor:pointer;width:100%;height:150px;justify-content:center;">
+                <div style="font-size:22px;">🖼</div><span>Clique para enviar a imagem</span>
+                <input type="file" accept="image/*" onChange="{{ edHandleImg }}" style="position:absolute;inset:0;opacity:0;cursor:pointer;"/>
+              </label>
+            </sc-if>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-top:16px;margin-bottom:8px;">Legenda</div>
+          <textarea placeholder="Escreva ou cole a legenda do post." value="{{ edCaption }}" onInput="{{ edSetCaption }}" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px;font-size:12px;color:#f5f5f5;resize:vertical;min-height:90px;outline:none;"></textarea>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Prévia no feed</div>
+          <div style="background:#000;border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden;max-width:240px;margin:0 auto;">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.07);">
+              <div style="{{ edAvatarCircleStyle }}">{{ edAvatarInitial }}</div>
+              <span style="font-size:11px;font-weight:600;color:#fff;flex:1;">{{ edIgUser }}</span><span style="color:rgba(255,255,255,.35);font-size:14px;">···</span>
+            </div>
+            <sc-if value="{{ edHasImg }}" hint-placeholder-val="{{ false }}"><div style="width:100%;aspect-ratio:1;background:#1a1a1a;overflow:hidden;"><div style="{{ edImgSmallStyle }}"></div></div></sc-if>
+            <sc-if value="{{ edNoImg }}"><div style="width:100%;aspect-ratio:1;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;font-size:11px;">Sem imagem</div></sc-if>
+            <div style="display:flex;gap:10px;padding:8px 10px 4px;"><span style="font-size:16px;">🤍</span><span style="font-size:16px;">💬</span><span style="font-size:16px;">📤</span></div>
+            <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.8);padding:0 10px 4px;">Seja o primeiro a curtir</div>
+            <div style="padding:0 10px 10px;font-size:9px;color:rgba(255,255,255,.55);line-height:1.5;"><strong style="color:#fff;">{{ edIgUser }}</strong> {{ edCaptionPreview }}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-top:14px;">
+        <sc-if value="{{ edSaving }}"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#a3a3a3;margin-right:auto;"><div style="width:13px;height:13px;border:1.5px solid rgba(255,255,255,.15);border-top-color:#ff7a1a;border-radius:50%;animation:spin .7s linear infinite;"></div>IA gerando a legenda…</div></sc-if>
+        <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
+        <button onClick="{{ savePostDraft }}" disabled="{{ edSaving }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">{{ edSaveLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isPublishModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:460px;width:92%;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <button onClick="{{ closeModal }}" style="position:absolute;top:14px;right:14px;background:#222222;border:1px solid rgba(255,255,255,.12);border-radius:6px;width:28px;height:28px;color:#a3a3a3;cursor:pointer;font-size:12px;">✕</button>
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px;">{{ pubTitle }}</div>
+      <div style="font-size:12px;color:#a3a3a3;line-height:1.7;margin-bottom:18px;">{{ pubDesc }}</div>
+      <sc-if value="{{ pubHasImg }}" hint-placeholder-val="{{ false }}"><div style="border-radius:10px;overflow:hidden;background:#1a1a1a;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);"><div style="{{ pubImgBgStyle }}"></div></div></sc-if>
+      <sc-if value="{{ pubNoImg }}"><div style="width:100%;border-radius:10px;background:#1a1a1a;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:#737373;font-size:12px;">Sem imagem salva</div></sc-if>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button onClick="{{ downloadPostImg }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">⬇ Baixar imagem</button>
+        <button onClick="{{ copyPubCap }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">{{ copyPubLabel }}</button>
+      </div>
+      <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Legenda</div>
+      <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;white-space:pre-line;max-height:200px;overflow-y:auto;margin-bottom:6px;">{{ pubCapText }}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <sc-if value="{{ pubPosted }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Fechar</button>
+          <button onClick="{{ undoPosted }}" style="background:oklch(66% 0.19 25 / .14);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Desfazer publicação</button>
+        </sc-if>
+        <sc-if value="{{ pubNotPosted }}">
+          <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
+          <button onClick="{{ confirmPosted }}" style="background:oklch(74% 0.15 152);color:#06210f;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Postado</button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isConfirmModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:400px;width:92%;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px;">{{ confirmTitle }}</div>
+      <div style="font-size:12px;color:#a3a3a3;line-height:1.7;margin-bottom:18px;">{{ confirmDesc }}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
+        <button onClick="{{ confirmYes }}" style="{{ confirmYesStyle }}">{{ confirmYesLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isPinModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:420px;width:92%;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px;">Lembrete fixo — {{ pinClientName }}</div>
+      <div style="font-size:12px;color:#a3a3a3;line-height:1.7;margin-bottom:12px;">Ex: "Sempre confirmar com o Diego antes de postar"</div>
+      <textarea value="{{ pinDraft }}" onInput="{{ setPinDraft }}" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px;font-size:12px;color:#f5f5f5;resize:vertical;min-height:90px;outline:none;"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
+        <button onClick="{{ savePinNote }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Salvar</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isClientEditModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:420px;width:92%;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:18px;">Editar cliente</div>
+      <div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Nome</div><input type="text" value="{{ ceName }}" onInput="{{ setCeName }}" style="{{ inputStyle }}"/></div>
+      <div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Posts por mês</div><select value="{{ cePosts }}" onChange="{{ setCePosts }}" style="{{ selectStyle }}"><sc-for list="{{ postCountOptions }}" as="pc3" hint-placeholder-count="10"><option value="{{ pc3 }}">{{ pc3 }}</option></sc-for></select></div>
+      <div style="margin-bottom:6px;"><div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">WhatsApp</div><input type="text" value="{{ cePhone }}" onInput="{{ setCePhone }}" style="{{ inputStyle }}"/></div>
+      <div style="margin-bottom:6px;">
+        <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Cor do avatar</div>
+        <div style="display:flex;gap:8px;">
+          <sc-for list="{{ avatarColorOptions }}" as="ac" hint-placeholder-count="5">
+            <button onClick="{{ ac.onClick }}" style="{{ ac.style }}"></button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;">
+        <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
+        <button onClick="{{ saveClientEdit }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Salvar</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const YEARS=[2026,2027];
+const MON=[['jan','Jan','Janeiro'],['feb','Fev','Fevereiro'],['mar','Mar','Março'],['apr','Abr','Abril'],['may','Mai','Maio'],['jun','Jun','Junho'],['jul','Jul','Julho'],['aug','Ago','Agosto'],['sep','Set','Setembro'],['oct','Out','Outubro'],['nov','Nov','Novembro'],['dec','Dez','Dezembro']];
+const MONTH_KEYS=[],MONTH_LABEL={},MONTH_FULL={},MONTH_YEAR={};
+YEARS.forEach(y=>MON.forEach(m=>{const k=y+'-'+m[0];MONTH_KEYS.push(k);MONTH_LABEL[k]=m[1];MONTH_FULL[k]=m[2]+' '+y;MONTH_YEAR[k]=y;}));
+const monthsOfYear=(y)=>MON.map(m=>y+'-'+m[0]);
+const LEGACY_MONTHS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const GOLD='#ff7a1a',GREEN='oklch(74% 0.15 152)',GREEN_D='oklch(74% 0.15 152 / .14)',YELLOW='oklch(84% 0.15 92)',YELLOW_D='oklch(84% 0.15 92 / .14)',RED='oklch(66% 0.19 25)',RED_D='oklch(66% 0.19 25 / .14)';
+const AVATAR_COLORS=['#ff7a1a','oklch(70% 0.16 25)','oklch(68% 0.14 250)','oklch(72% 0.15 152)','oklch(74% 0.14 320)'];
+
+class Component extends DCLogic {
+  state={
+    view:'dashboard',subview:'clientes',navOpen:false,
+    capImg:null,capNotes:'',capSpin:false,capOut:null,capErr:null,capCopyLabel:'Copiar legenda',squad:'D',member:'guilherme',psearch:'',criFilter:'all',edSaving:false,clientSel:'',month:'2026-sep',trackerYear:'2026',
+    dashMonth:'2026-sep',dashYear:'2026',
+    panelSquad:'all',panelMember:'all',panelMonth:'2026-sep',panelYear:'2026',
+    criSquad:'D',criMember:'guilherme',criClient:'',
+    relSquad:'A',relMember:'guilherme',relClient:'',relMonth:'2026-sep',relYear:'2026',relSpin:false,relOut:null,
+    insSquad:'A',insMember:'guilherme',insClient:'',insSpin:false,insOut:null,
+    ncSquad:'D',ncMember:'guilherme',ncName:'',ncPosts:'5',ncPhone:'',ncMsg:null,
+    nmSquad:'A',nmName:'',nmMsg:null,
+    qsearch:'',qShow:false,
+    wppShown:false,wppText:'',wppCopyLabel:'Copiar',
+    modal:null,
+    edCaption:'',edImg:null,edSpin:false,edOut:null,
+    pubCopyLabel:'📋 Copiar legenda',
+    pinDraft:'',
+    ceName:'',cePosts:'5',cePhone:'',ceAvatarColor:'',
+    toast:null,
+    relCopyLabel:'Copiar',
+    postsViewMode:'grid',panelOnlyLate:false,recentClients:[],pulseKey:null,
+    tick:0,sync:'local'
+  };
+
+  constructor(props){
+    super(props);
+    this.qsearchWrapRef=React.createRef();
+    this.importRef=React.createRef();
+    this.db=null;
+  }
+
+  componentDidMount(){
+    this.loadAll();
+    this.remoteInit();
+    document.addEventListener('mousedown',this.handleDocClick);
+    document.addEventListener('keydown',this.handleKeyDown);
+    this.forceUpdate();
+  }
+  componentWillUnmount(){clearInterval(this._poll);if(this._vis)document.removeEventListener('visibilitychange',this._vis);document.removeEventListener('mousedown',this.handleDocClick);document.removeEventListener('keydown',this.handleKeyDown);}
+  handleDocClick=(e)=>{const el=this.qsearchWrapRef.current;if(el&&!el.contains(e.target)&&this.state.qShow)this.setState({qShow:false});};
+  handleKeyDown=(e)=>{
+    if(this.state.modal)return;
+    const tag=(e.target&&e.target.tagName)||'';
+    if(['INPUT','TEXTAREA','SELECT'].includes(tag))return;
+    const map={'1':'dashboard','2':'tracker','3':'criativos','4':'clientes'};
+    if(map[e.key])this.setState({view:map[e.key]});
+  };
+  findMemberOf(cid){for(const mid in this.db.members)if((this.db.members[mid].clients||[]).includes(cid))return mid;return null;}
+  storageInfo(){
+    let bytes=0;
+    try{for(const k in localStorage)if(Object.prototype.hasOwnProperty.call(localStorage,k))bytes+=(localStorage[k].length+k.length)*2;}catch(e){}
+    const limitMB=5;const usedMB=bytes/1024/1024;const pct=Math.min(100,Math.round((usedMB/limitMB)*100));
+    return{usedMB:usedMB.toFixed(2),pct};
+  }
+
+  defaultDb(){
+    return{
+      squads:{A:{label:'Squad A',members:['samuel','gabriel']},B:{label:'Squad B',members:['kleiton','marco']},C:{label:'Squad C',members:['arthur','caique']},D:{label:'Squad D',members:['guilherme']}},
+      members:{
+        samuel:{label:'Samuel',squad:'A',clients:[]},
+        gabriel:{label:'Gabriel',squad:'A',clients:[]},
+        kleiton:{label:'Cleiton',squad:'B',clients:[]},
+        marco:{label:'Marco',squad:'B',clients:[]},
+        arthur:{label:'Arthur',squad:'C',clients:[]},
+        caique:{label:'Caique',squad:'C',clients:[]},
+        guilherme:{label:'Guilherme',squad:'D',clients:[]}
+      },
+      clients:{
+      },
+      data:{},meta:{wipe:2}
+    };
+  }
+  ensureClientData(m,c){
+    const db=this.db;
+    const n=(db.clients[c]||{}).posts||0;
+    const sig=m+'|'+c+'|'+n+'|'+MONTH_KEYS.length;
+    if(!this._ens)this._ens=new Set();
+    if(this._ens.has(sig)&&db.data[m]&&db.data[m][c])return;
+    this._ens.add(sig);
+    if(!db.data[m])db.data[m]={};
+    if(!db.data[m][c])db.data[m][c]={};
+    for(const mo of MONTH_KEYS){
+      if(!db.data[m][c][mo])db.data[m][c][mo]={};
+      for(let i=1;i<=n;i++)if(!db.data[m][c][mo]['p'+i])db.data[m][c][mo]['p'+i]={done:false,ready:false,pendingApproval:false,date:null,time:null,img:null,caption:''};
+    }
+  }
+  loadAll(){
+    this.db=this.defaultDb();
+    try{
+      const cfg=JSON.parse(localStorage.getItem('qh4x-cfg')||'null');
+      if(cfg){
+        if(cfg.squads)for(const k in cfg.squads)this.db.squads[k]=Object.assign({},this.db.squads[k],cfg.squads[k]);
+        if(cfg.members)for(const k in cfg.members)this.db.members[k]=cfg.members[k];
+        if(cfg.clients)for(const k in cfg.clients)this.db.clients[k]=cfg.clients[k];
+      }
+    }catch(e){}
+    try{
+      if(!localStorage.getItem('qh4x-mig-4sq')){
+        const plan={A:['samuel','gabriel'],B:['kleiton','marco'],C:['arthur','caique'],D:['guilherme']};
+        const labels={samuel:'Samuel',gabriel:'Gabriel',kleiton:'Cleiton',marco:'Marco',arthur:'Arthur',caique:'Caique',guilherme:'Guilherme'};
+        this.db.squads={};
+        for(const sq in plan){this.db.squads[sq]={label:'Squad '+sq,members:plan[sq].slice()};for(const mid of plan[sq])this.db.members[mid]=Object.assign({clients:[]},this.db.members[mid]||{},{label:labels[mid],squad:sq});}
+        for(const mid in this.db.members)if(!labels[mid]){const sq=this.db.squads[this.db.members[mid].squad]?this.db.members[mid].squad:'A';this.db.members[mid].squad=sq;this.db.squads[sq].members.push(mid);}
+        localStorage.setItem('qh4x-mig-4sq','1');this.saveConfig();
+      }
+    }catch(e){}
+    let lm=null;try{lm=(JSON.parse(localStorage.getItem('qh4x-cfg')||'null')||{}).meta||null;}catch(e){}
+    if(this.cleanupClients(lm)){try{localStorage.setItem('qh4x-cfg',JSON.stringify({squads:this.db.squads,members:this.db.members,clients:this.db.clients,meta:this.db.meta}));}catch(e){}}
+    for(const m in this.db.members)for(const c of this.db.members[m].clients||[])this.ensureClientData(m,c);
+    try{
+      let saved=JSON.parse(localStorage.getItem('qh4x-data')||'null');
+      if(saved){
+        // migra chaves antigas de mês ('jun') para o formato com ano ('2026-jun')
+        let migrated=false;
+        for(const m in saved)for(const c in saved[m]){
+          for(const mo of LEGACY_MONTHS){
+            if(saved[m][c][mo]!==undefined){
+              const nk='2026-'+mo;
+              saved[m][c][nk]=Object.assign({},saved[m][c][nk]||{},saved[m][c][mo]);
+              delete saved[m][c][mo];migrated=true;
+            }
+          }
+        }
+        if(migrated)localStorage.setItem('qh4x-data',JSON.stringify(saved));
+      }
+      if(saved)for(const m in saved){
+        if(!this.db.data[m])continue;
+        for(const c in saved[m]){
+          if(!this.db.data[m][c])continue;
+          for(const mo in saved[m][c]){
+            if(!this.db.data[m][c][mo])continue;
+            for(const p in saved[m][c][mo])if(this.db.data[m][c][mo][p])this.db.data[m][c][mo][p]=Object.assign({},this.db.data[m][c][mo][p],saved[m][c][mo][p]);
+          }
+        }
+      }
+    }catch(e){}
+  }
+  cleanupClients(meta){
+    const db=this.db;
+    if(meta&&meta.wipe===2){db.meta=meta;return false;}
+    for(const mid in db.members)db.members[mid].clients=[];
+    db.clients={};db.data={};db.meta={wipe:2};
+    this._ens=new Set();this._replaceAll=true;
+    try{localStorage.removeItem('qh4x-data');}catch(e){}
+    return true;
+  }
+  saveConfig(){try{localStorage.setItem('qh4x-cfg',JSON.stringify({squads:this.db.squads,members:this.db.members,clients:this.db.clients,meta:this.db.meta}));}catch(e){}this.queuePush();}
+
+  // ═ banco online (Vercel + Redis)
+  async remoteInit(){
+    if(location.protocol==='file:'){this.setState({sync:'local'});return;}
+    try{
+      const r=await fetch('/api/state',{cache:'no-store'});if(!r.ok)throw new Error('http '+r.status);
+      const j=await r.json();this._remote=true;this._sent={};
+      if(j.cfg)this.applyRemote(j);else{this._cfgSent='';this._ver=j.ver||0;await this.flushPush();}
+      this.setState({sync:'ok'});
+      this._poll=setInterval(()=>this.pollVer(),4000);
+      this._vis=()=>{if(!document.hidden)this.pollVer();};document.addEventListener('visibilitychange',this._vis);
+    }catch(e){this._remote=false;this.setState({sync:'local'});}
+  }
+  applyRemote(j){
+    const db=this.db,c=j.cfg||{};
+    if(c.squads)db.squads=c.squads;if(c.members)db.members=c.members;if(c.clients)db.clients=c.clients;
+    db.data={};this._ens=new Set();
+    const cleaned=this.cleanupClients(c.meta||null);if(!cleaned)this._replaceAll=false;
+    for(const m in db.members)for(const cid of db.members[m].clients||[])this.ensureClientData(m,cid);
+    this._sent={};
+    for(const k in (j.posts||{})){
+      const[m,cid,mo,p]=k.split('|');let v=j.posts[k];if(typeof v==='string'){try{v=JSON.parse(v);}catch(e){continue;}}
+      const tgt=db.data[m]?.[cid]?.[mo]?.[p];if(!tgt)continue;Object.assign(tgt,v);this._sent[k]=JSON.stringify(tgt);
+    }
+    this._cfgSent=cleaned?'':JSON.stringify({squads:db.squads,members:db.members,clients:db.clients,meta:db.meta});
+    this._ver=j.ver||0;
+    try{localStorage.setItem('qh4x-cfg',this._cfgSent);localStorage.setItem('qh4x-data',JSON.stringify(db.data));}catch(e){}
+    this._sc={};
+    const curCl=db.members[this.state.member]?.clients||[];
+    if(!curCl.includes(this.state.clientSel))this.setState({clientSel:curCl[0]||''});
+    if(cleaned)this.queuePush();
+    this.forceUpdate();
+  }
+  async pollVer(){
+    if(!this._remote||this._pushing||document.hidden)return;
+    try{
+      const r=await fetch('/api/state?only=ver',{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
+      if(j.ver!==this._ver){const r2=await fetch('/api/state',{cache:'no-store'});const j2=await r2.json();if(!this._pushing)this.applyRemote(j2);}
+      if(this.state.sync!=='ok')this.setState({sync:'ok'});
+    }catch(e){if(this.state.sync!=='off')this.setState({sync:'off'});}
+  }
+  queuePush(){if(!this._remote)return;this._pushing=true;clearTimeout(this._pushT);this._pushT=setTimeout(()=>this.flushPush(),350);}
+  async uploadImg(k,dataUrl){
+    const r=await fetch('/api/img',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({k,v:dataUrl})});
+    if(!r.ok)throw new Error('img '+r.status);return (await r.json()).url;
+  }
+  async flushPush(){
+    this._pushing=true;
+    try{
+      const db=this.db;const body={};
+      const cfgObj={squads:db.squads,members:db.members,clients:db.clients,meta:db.meta};const cs=JSON.stringify(cfgObj);
+      if(cs!==this._cfgSent)body.cfg=cfgObj;
+      const posts={};
+      for(const m in db.data)for(const cid in db.data[m])for(const mo in db.data[m][cid])for(const p in db.data[m][cid][mo]){
+        const post=db.data[m][cid][mo][p];const k=m+'|'+cid+'|'+mo+'|'+p;
+        if(post.img&&String(post.img).startsWith('data:'))post.img=await this.uploadImg((m+'_'+cid+'_'+mo+'_'+p+'_'+Date.now()).replace(/[^\w-]/g,'_'),post.img);
+        if(this._sent[k]===undefined&&!post.done&&!post.ready&&!post.img&&!post.caption&&!post.pendingApproval)continue;
+        const str=JSON.stringify(post);if(this._sent[k]!==str)posts[k]=post;
+      }
+      for(const pre of (this._delPrefixes||[]))for(const k in this._sent)if(k.startsWith(pre))posts[k]=null;
+      this._delPrefixes=[];
+      const n=Object.keys(posts).length;
+      if(!body.cfg&&!n&&!this._replaceAll){this._pushing=false;return;}
+      if(n)body.posts=posts;if(this._replaceAll)body.replaceAll=true;
+      this.setState({sync:'saving'});
+      const r=await fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(!r.ok)throw new Error('http '+r.status);
+      const j=await r.json();
+      if(body.cfg)this._cfgSent=cs;for(const k in posts){if(posts[k]===null)delete this._sent[k];else this._sent[k]=JSON.stringify(posts[k]);}this._replaceAll=false;
+      const others=j.ver!==(this._ver||0)+1;this._ver=j.ver;this._pushing=false;
+      try{localStorage.setItem('qh4x-data',JSON.stringify(db.data));}catch(e){}
+      this.setState({sync:'ok'});this.forceUpdate();
+      if(others){this._ver=-1;this.pollVer();}
+    }catch(e){
+      this._pushing=false;this.setState({sync:'off'});
+      this.showToast('Sem conexão com o banco. A alteração ficou só neste aparelho; tente de novo.','bad');
+    }
+  }
+  saveData(){
+    try{localStorage.setItem('qh4x-data',JSON.stringify(this.db.data));}
+    catch(e){
+      try{
+        const stripped=JSON.parse(JSON.stringify(this.db.data));
+        for(const m in stripped)for(const c in stripped[m])for(const mo in stripped[m][c])for(const p in stripped[m][c][mo])stripped[m][c][mo][p].img=null;
+        localStorage.setItem('qh4x-data',JSON.stringify(stripped));
+        this.showToast('Armazenamento cheio: imagens não foram salvas no backup local (mas continuam nesta sessão).','warn');
+      }catch(e2){}
+    }
+    this.queuePush();
+    this._actionCount=(this._actionCount||0)+1;
+    if(!this._remote&&this._actionCount%15===0)this.showToast('Dica: exporte um backup em Clientes e Equipe pra não perder dados.','warn');
+  }
+  showToast(msg,type){
+    this.setState({toast:{msg,type}});
+    clearTimeout(this._toastT);
+    this._toastT=setTimeout(()=>this.setState({toast:null}),3200);
+  }
+
+  getStatus(done,total){
+    if(!total)return{cls:'empty',lbl:'—'};
+    const p=done/total;
+    if(p===1)return{cls:'ok',lbl:'Completo'};
+    if(p>=.6)return{cls:'ok',lbl:'Em dia'};
+    if(p>=.2)return{cls:'warn',lbl:'Atenção'};
+    return{cls:'bad',lbl:'Atrasado'};
+  }
+  badgeStyleFor(cls){
+    const m={ok:[GREEN,GREEN_D],warn:[YELLOW,YELLOW_D],bad:[RED,RED_D],empty:['#737373','#1a1a1a']};
+    const[c,bg]=m[cls]||m.empty;
+    return 'display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:4px 9px;border-radius:5px;letter-spacing:.3px;text-transform:uppercase;color:'+c+';background:'+bg+';border:1px solid '+c+'33;';
+  }
+
+  memberMonthStats(mid,mo){
+    if(!this._sc)this._sc={};
+    const ck='m|'+mid+'|'+mo;if(this._sc[ck])return this._sc[ck];
+    const r=this._memberMonthStats(mid,mo);this._sc[ck]=r;return r;
+  }
+  _memberMonthStats(mid,mo){
+    let done=0,total=0,clients=0;const m=this.db.members[mid];if(!m)return{done,total,clients};
+    for(const cid of m.clients||[]){
+      if(!this.db.clients[cid])continue;clients++;this.ensureClientData(mid,cid);
+      const t=this.db.clients[cid].posts;total+=t;
+      for(let i=1;i<=t;i++)if(this.db.data[mid][cid][mo]?.['p'+i]?.done)done++;
+    }
+    return{done,total,clients};
+  }
+  squadMonthStats(sq,mo){
+    let done=0,total=0,clients=0,members=0;
+    for(const mid of this.db.squads[sq]?.members||[]){if(!this.db.members[mid])continue;members++;const s=this.memberMonthStats(mid,mo);done+=s.done;total+=s.total;clients+=s.clients;}
+    return{done,total,clients,members};
+  }
+  globalMonthStats(mo){let done=0,total=0;for(const mid in this.db.members){const s=this.memberMonthStats(mid,mo);done+=s.done;total+=s.total;}return{done,total};}
+  statusMonthCounts(mo){
+    if(!this._sc)this._sc={};
+    const ck='s|'+mo;if(this._sc[ck])return this._sc[ck];
+    const r=this._statusMonthCounts(mo);this._sc[ck]=r;return r;
+  }
+  _statusMonthCounts(mo){
+    let posted=0,ready=0,empty=0;
+    for(const mid in this.db.members)for(const cid of this.db.members[mid].clients||[]){
+      if(!this.db.clients[cid])continue;this.ensureClientData(mid,cid);
+      const t=this.db.clients[cid].posts;
+      for(let i=1;i<=t;i++){const p=this.db.data[mid][cid][mo]?.['p'+i];
+        if(p?.done)posted++;else if(p&&(p.ready||p.img||(p.caption&&p.caption.trim())))ready++;else empty++;
+      }
+    }
+    return{posted,ready,empty};
+  }
+  igUser(cid){const n=(this.db.clients[cid]||{}).name||'';return n.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'').substring(0,18);}
+  cid2(n){return n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');}
+
+  // ═ nav
+  toggleNav=()=>this.setState(s=>({navOpen:!s.navOpen}));
+  closeNav=()=>this.setState({navOpen:false});
+  goDashboard=()=>this.setState({view:'dashboard',navOpen:false});
+  goTracker=()=>this.setState({view:'tracker',navOpen:false});
+  goPanel=()=>this.setState({view:'panel',navOpen:false});
+  goCriativos=()=>this.setState({view:'criativos',navOpen:false});
+  goRelatorio=()=>this.setState({view:'relatorio',navOpen:false});
+  goLegenda=()=>this.setState({view:'legenda',navOpen:false});
+  goClientes=()=>this.setState({view:'clientes',navOpen:false});
+  goInsights=()=>this.setState({view:'insights',navOpen:false});
+  goSubClientes=()=>this.setState({subview:'clientes'});
+  goSubMembros=()=>this.setState({subview:'membros'});
+
+  setSquad=(e)=>{const sq=e.target.value;const first=this.db.squads[sq]?.members?.[0]||'';this.setState({squad:sq,member:first,clientSel:(this.db.members[first]?.clients||[])[0]||''});};
+  setClientSel=(e)=>{const cid=e.target.value;const recentClients=cid?[cid,...this.state.recentClients.filter(c=>c!==cid)].slice(0,4):this.state.recentClients;this.setState({clientSel:cid,recentClients});};
+  setMonth=(e)=>this.setState({month:e.target.value,wppShown:false});
+  setDashMonth=(e)=>this.setState({dashMonth:e.target.value});
+  swapYear(mk,y){const part=String(mk||'').split('-')[1]||'jan';return y+'-'+part;}
+  setTrackerYear=(e)=>{const y=e.target.value;this.setState({trackerYear:y,month:this.swapYear(this.state.month,y),wppShown:false});};
+  setDashYear=(e)=>{const y=e.target.value;this.setState({dashYear:y,dashMonth:this.swapYear(this.state.dashMonth,y)});};
+  setPanelYear=(e)=>{const y=e.target.value;this.setState({panelYear:y,panelMonth:this.swapYear(this.state.panelMonth,y)});};
+  setRelYear=(e)=>{const y=e.target.value;this.setState({relYear:y,relMonth:this.swapYear(this.state.relMonth,y),relOut:null});};
+  setPanelSquad=(e)=>this.setState({panelSquad:e.target.value,panelMember:'all'});
+  setPanelMember=(e)=>this.setState({panelMember:e.target.value});
+  setPanelMonth=(e)=>this.setState({panelMonth:e.target.value});
+  setCriSquad=(e)=>{const sq=e.target.value;const first=this.db.squads[sq]?.members?.[0]||'';const cl=(this.db.members[first]?.clients||[])[0]||'';this.setState({criSquad:sq,criMember:first,criClient:cl});};
+  setCriMember=(e)=>{const mid=e.target.value;const cl=(this.db.members[mid]?.clients||[])[0]||'';this.setState({criMember:mid,criClient:cl});};
+  setCriClient=(e)=>this.setState({criClient:e.target.value});
+  setRelSquad=(e)=>{const sq=e.target.value;const first=this.db.squads[sq]?.members?.[0]||'';const cl=(this.db.members[first]?.clients||[])[0]||'';this.setState({relSquad:sq,relMember:first,relClient:cl,relOut:null});};
+  setRelMember=(e)=>{const mid=e.target.value;const cl=(this.db.members[mid]?.clients||[])[0]||'';this.setState({relMember:mid,relClient:cl,relOut:null});};
+  setRelClient=(e)=>this.setState({relClient:e.target.value,relOut:null});
+  setRelMonth=(e)=>this.setState({relMonth:e.target.value,relOut:null});
+  setInsSquad=(e)=>{const sq=e.target.value;const first=this.db.squads[sq]?.members?.[0]||'';const cl=(this.db.members[first]?.clients||[])[0]||'';this.setState({insSquad:sq,insMember:first,insClient:cl,insOut:null});};
+  setInsMember=(e)=>{const mid=e.target.value;const cl=(this.db.members[mid]?.clients||[])[0]||'';this.setState({insMember:mid,insClient:cl,insOut:null});};
+  setInsClient=(e)=>this.setState({insClient:e.target.value,insOut:null});
+
+  onPSearch=(e)=>this.setState({psearch:e.target.value});
+  setCriFilter=(e)=>this.setState({criFilter:e.target.value});
+  pickSquad=(sq)=>()=>{const first=this.db.squads[sq]?.members?.[0]||'';this.setState({squad:sq,member:first,clientSel:(this.db.members[first]?.clients||[])[0]||'',wppShown:false});};
+  onQSearch=(e)=>this.setState({qsearch:e.target.value,qShow:true});
+  onQSearchFocus=()=>this.setState({qShow:true});
+
+  goToPost=(mid,cid,mo)=>{
+    const m=this.db.members[mid];if(!m)return;
+    const recentClients=[cid,...this.state.recentClients.filter(c=>c!==cid)].slice(0,4);
+    this.setState({view:'tracker',squad:m.squad,member:mid,clientSel:cid,month:mo,qsearch:'',psearch:'',qShow:false,navOpen:false,recentClients});
+  };
+
+  // ═ clientes/membros forms
+  setNcSquad=(e)=>{const sq=e.target.value;const first=this.db.squads[sq]?.members?.[0]||'';this.setState({ncSquad:sq,ncMember:first});};
+  setNcMember=(e)=>this.setState({ncMember:e.target.value});
+  setNcName=(e)=>this.setState({ncName:e.target.value});
+  setNcPosts=(e)=>this.setState({ncPosts:e.target.value});
+  setNcPhone=(e)=>this.setState({ncPhone:e.target.value});
+  ncEnter=(e)=>{if(e.key==='Enter')this.addClient();};
+  addClient=()=>{
+    const name=this.state.ncName.trim();
+    if(!name){this.setState({ncMsg:'⚠️ Digite o nome.',ncMsgErr:true});return;}
+    let cid=this.cid2(name);if(this.db.clients[cid])cid=cid+'_'+Date.now();
+    this.db.clients[cid]={name,posts:parseInt(this.state.ncPosts),pinnedNote:'',phone:this.state.ncPhone.trim()};
+    const mid=this.state.ncMember;
+    if(this.db.members[mid]&&!this.db.members[mid].clients.includes(cid))this.db.members[mid].clients.push(cid);
+    this.ensureClientData(mid,cid);this.saveData();this.saveConfig();
+    this.setState({ncName:'',ncMsg:'✓ "'+name+'" cadastrado!',ncMsgErr:false});
+    clearTimeout(this._ncT);this._ncT=setTimeout(()=>this.setState({ncMsg:null}),3000);
+    this.forceUpdate();
+  };
+  removeClient=(cid,mid)=>{
+    this.setState({modal:{kind:'confirm',title:'Excluir cliente',desc:'Excluir "'+(this.db.clients[cid]?.name||'')+'" e todos os posts dele? Essa ação vale para todos que usam o sistema e não pode ser desfeita.',danger:true,
+      onYes:()=>{
+        this.db.members[mid].clients=(this.db.members[mid].clients||[]).filter(c=>c!==cid);
+        if(this.db.data[mid]?.[cid])delete this.db.data[mid][cid];
+        this._delPrefixes=(this._delPrefixes||[]).concat(mid+'|'+cid+'|');
+        if(!Object.keys(this.db.members).some(m=>(this.db.members[m].clients||[]).includes(cid)))delete this.db.clients[cid];
+        this.saveData();this.saveConfig();this.setState({modal:null});this.forceUpdate();
+      }}});
+  };
+  toggleFavorite=(cid)=>()=>{const c=this.db.clients[cid];if(!c)return;c.favorite=!c.favorite;this.saveConfig();this.forceUpdate();};
+  duplicateClientAction=(cid,mid)=>()=>{
+    const c=this.db.clients[cid];if(!c)return;
+    let newCid=cid+'_copy',n=1;while(this.db.clients[newCid])newCid=cid+'_copy'+(++n);
+    this.db.clients[newCid]={name:c.name+' (cópia)',posts:c.posts,pinnedNote:'',phone:c.phone||'',favorite:false,avatarColor:c.avatarColor||null};
+    if(!this.db.members[mid].clients.includes(newCid))this.db.members[mid].clients.push(newCid);
+    this.ensureClientData(mid,newCid);this.saveData();this.saveConfig();this.showToast('Cliente duplicado.','ok');this.forceUpdate();
+  };
+  editClient=(cid)=>{
+    const c=this.db.clients[cid];if(!c)return;
+    this.setState({ceName:c.name,cePosts:String(c.posts),cePhone:c.phone||'',ceAvatarColor:c.avatarColor||'',modal:{kind:'clientEdit',cid}});
+  };
+  setCeName=(e)=>this.setState({ceName:e.target.value});
+  setCePosts=(e)=>this.setState({cePosts:e.target.value});
+  setCePhone=(e)=>this.setState({cePhone:e.target.value});
+  setCeAvatarColor=(color)=>()=>this.setState({ceAvatarColor:color});
+  saveClientEdit=()=>{
+    const cid=this.state.modal.cid;const c=this.db.clients[cid];if(!c)return;
+    c.name=this.state.ceName.trim()||c.name;c.posts=parseInt(this.state.cePosts);c.phone=this.state.cePhone.trim();c.avatarColor=this.state.ceAvatarColor||null;
+    for(const mid in this.db.members)if((this.db.members[mid].clients||[]).includes(cid))this.ensureClientData(mid,cid);
+    this.saveData();this.saveConfig();this.setState({modal:null});this.forceUpdate();
+  };
+
+  setNmSquad=(e)=>this.setState({nmSquad:e.target.value});
+  setNmName=(e)=>this.setState({nmName:e.target.value});
+  nmEnter=(e)=>{if(e.key==='Enter')this.addMember();};
+  addMember=()=>{
+    const name=this.state.nmName.trim();
+    if(!name){this.setState({nmMsg:'⚠️ Digite o nome.',nmMsgErr:true});return;}
+    let mid=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_');
+    if(this.db.members[mid])mid=mid+'_'+Date.now();
+    const sq=this.state.nmSquad;
+    this.db.members[mid]={label:name,squad:sq,clients:[]};
+    if(!this.db.squads[sq].members.includes(mid))this.db.squads[sq].members.push(mid);
+    this.saveConfig();
+    this.setState({nmName:'',nmMsg:'✓ "'+name+'" adicionado ao Squad '+sq+'!',nmMsgErr:false});
+    clearTimeout(this._nmT);this._nmT=setTimeout(()=>this.setState({nmMsg:null}),3000);
+    this.forceUpdate();
+  };
+  removeMember=(mid)=>{
+    const m=this.db.members[mid];if(!m)return;
+    if((m.clients||[]).length>0){this.showToast('Remova os clientes deste membro antes de removê-lo.','warn');return;}
+    this.setState({modal:{kind:'confirm',title:'Remover membro',desc:'Remover "'+m.label+'"?',danger:true,onYes:()=>{
+      this.db.squads[m.squad].members=(this.db.squads[m.squad].members||[]).filter(x=>x!==mid);
+      delete this.db.members[mid];if(this.db.data[mid])delete this.db.data[mid];
+      this.saveConfig();this.saveData();this.setState({modal:null});this.forceUpdate();
+    }}});
+  };
+
+  exportBackup=()=>{
+    const blob=new Blob([JSON.stringify({squads:this.db.squads,members:this.db.members,clients:this.db.clients,data:this.db.data},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='qh4-backup.json';document.body.appendChild(a);a.click();a.remove();
+    this.showToast('Backup exportado.','ok');
+  };
+  triggerImport=()=>{if(this.importRef.current)this.importRef.current.click();};
+  onImportFile=(e)=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=(ev)=>{
+      try{
+        const j=JSON.parse(ev.target.result);
+        if(j.squads)this.db.squads=j.squads;if(j.members)this.db.members=j.members;if(j.clients)this.db.clients=j.clients;if(j.data)this.db.data=j.data;
+        this._ens=new Set();this._sent={};this._replaceAll=true;this.saveConfig();this.saveData();this.showToast('Backup importado com sucesso.','ok');this.forceUpdate();
+      }catch(err){this.showToast('Arquivo inválido.','bad');}
+    };
+    r.readAsText(f);e.target.value='';
+  };
+
+  // ═ pin note
+  openPinNote=()=>{const cid=this.state.clientSel;this.setState({pinDraft:this.db.clients[cid]?.pinnedNote||'',modal:{kind:'pin',cid}});};
+  setPinDraft=(e)=>this.setState({pinDraft:e.target.value});
+  savePinNote=()=>{const cid=this.state.modal.cid;if(this.db.clients[cid]){this.db.clients[cid].pinnedNote=this.state.pinDraft;this.saveConfig();}this.setState({modal:null});this.forceUpdate();};
+
+  // ═ editor modal
+  openPostEditor=(cid,mid,idx)=>{
+    this.ensureClientData(mid,cid);
+    const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    this.setState({modal:{kind:'editor',cid,mid,idx},edCaption:post.caption||'',edImg:post.img||null,edOut:null,edSpin:false});
+  };
+  duplicatePostFromPrev=(cid,mid,idx)=>()=>{
+    const mi=MONTH_KEYS.indexOf(this.state.month);if(mi<=0)return;
+    const prevMo=MONTH_KEYS[mi-1];const prevPost=this.db.data[mid]?.[cid]?.[prevMo]?.['p'+idx];if(!prevPost)return;
+    const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    post.img=prevPost.img||null;post.caption=prevPost.caption||'';post.ready=!!(post.img||(post.caption&&post.caption.trim()));
+    this.saveData();this.showToast('Conteúdo duplicado do mês anterior.','ok');this.forceUpdate();
+  };
+  togglePostsView=()=>this.setState({postsViewMode:this.state.postsViewMode==='grid'?'list':'grid'});
+  setPanelOnlyLate=()=>this.setState({panelOnlyLate:!this.state.panelOnlyLate});
+  edHandleImg=(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;e.target.value='';this.resizeImage(f,(out,err)=>{if(err)this.showToast(err,'bad');else this.setState({edImg:out});});};
+  edRemoveImg=()=>this.setState({edImg:null});
+  bgUrl(src){
+    src=String(src||'');if(!src.startsWith('data:'))return src;
+    if(!this._blobCache)this._blobCache=new Map();
+    const hit=this._blobCache.get(src);if(hit)return hit;
+    try{
+      const i=src.indexOf(',');const mime=(src.slice(5,i).split(';')[0])||'image/jpeg';
+      const bin=atob(src.slice(i+1));const arr=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)arr[j]=bin.charCodeAt(j);
+      const u=URL.createObjectURL(new Blob([arr],{type:mime}));
+      if(this._blobCache.size>80){const[k,v]=this._blobCache.entries().next().value;URL.revokeObjectURL(v);this._blobCache.delete(k);}
+      this._blobCache.set(src,u);return u;
+    }catch(e){return '';}
+  }
+  edSetCaption=(e)=>this.setState({edCaption:e.target.value});
+  async aiCaption(cname,img){
+    try{
+      if(window.claude&&window.claude.complete){
+        const t=await window.claude.complete('Escreva uma legenda de Instagram em português do Brasil para um post da '+cname+', uma marmoraria (pedras naturais, mármore, granito, quartzito). Tom sofisticado e próximo. Estrutura: uma frase de abertura com 1 emoji, um parágrafo curto valorizando o material e o acabamento, uma chamada para orçamento pelo direct ou WhatsApp, e 5 hashtags. Responda somente com a legenda.');
+        if(t&&String(t).trim())return String(t).trim();
+      }
+    }catch(e){}
+    if(location.protocol!=='file:'){
+      try{const r=await fetch('/api/caption',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client:cname,img:String(img||'').startsWith('data:')?img:null,imgKey:(String(img||'').match(/[?&]k=([^&]+)/)||[])[1]||null})});
+        const j=await r.json().catch(()=>({}));
+        if(r.ok&&j.text&&j.text.trim())return j.text.trim();
+        this._capWarn=r.status===501?'Legenda-modelo: para a IA olhar a imagem, configure a ANTHROPIC_API_KEY na Vercel.':('IA indisponível ('+(j.error||r.status)+'). Usei uma legenda-modelo.');
+      }catch(e){this._capWarn='IA indisponível. Usei uma legenda-modelo.';}
+    }else{this._capWarn='Legenda-modelo (arquivo offline não tem IA).';
+    }
+    await new Promise(r=>setTimeout(r,700));
+    const caps=this.mockCaptions(cname);return caps[Math.floor(Math.random()*caps.length)];
+  }
+  savePostDraft=()=>{
+    const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    const cap=(this.state.edCaption||'').trim();const img=this.state.edImg;
+    post.img=img;post.caption=cap;post.ready=!!(img||cap);
+    this.saveData();this.setState({modal:null});
+    if(post.ready)this.showToast('Post salvo em Criativos.','ok');
+    this.forceUpdate();
+  };
+  resizeImage(file,cb){
+    const r=new FileReader();
+    r.onload=(ev)=>{const src=ev.target.result;const im=new Image();
+      im.onload=()=>{const max=1280,sc=Math.min(1,max/Math.max(im.width,im.height));const cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);
+        const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(im,0,0,cv.width,cv.height);
+        let out=null;try{out=cv.toDataURL('image/jpeg',0.86);}catch(err){}cb(out||src,null);};
+      im.onerror=()=>cb(null,'Não consegui abrir essa imagem. Envie em JPG ou PNG.');im.src=src;};
+    r.onerror=()=>cb(null,'Erro ao ler o arquivo.');
+    r.readAsDataURL(file);
+  }
+  capHandleImg=(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;e.target.value='';
+    this.resizeImage(f,(out,err)=>this.setState({capImg:out,capErr:err,capOut:null}));};
+  capRemoveImg=()=>this.setState({capImg:null,capOut:null,capErr:null});
+  capSetNotes=(e)=>this.setState({capNotes:e.target.value});
+  gerarLegendaIA=async()=>{
+    if(this.state.capSpin)return;
+    if(!this.state.capImg){this.setState({capErr:'Envie a imagem do post primeiro.'});return;}
+    if(location.protocol==='file:'){this.setState({capErr:'A legenda com IA só funciona no link online (Vercel), com a chave ANTHROPIC_API_KEY configurada. No arquivo aberto direto do computador não há IA.'});return;}
+    this.setState({capSpin:true,capErr:null,capOut:null,capCopyLabel:'Copiar legenda'});
+    try{
+      const r=await fetch('/api/caption',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({img:this.state.capImg,notes:this.state.capNotes||''})});
+      const j=await r.json().catch(()=>({}));
+      if(r.status===501)throw new Error('A chave da IA não está configurada. Na Vercel: Settings > Environment Variables > ANTHROPIC_API_KEY = sua chave, depois Redeploy.');
+      if(r.status===404)throw new Error('O servidor da IA não foi encontrado. Confira se a pasta "api" foi enviada junto na Vercel.');
+      if(!r.ok)throw new Error('A IA não conseguiu gerar: '+(j.error||('erro '+r.status))+'.');
+      if(!j.usedImage)throw new Error('A imagem não chegou até a IA. Tente enviar novamente em JPG ou PNG.');
+      if(!j.text)throw new Error('A IA respondeu vazio. Tente de novo.');
+      this.setState({capSpin:false,capOut:j.text});
+    }catch(e){this.setState({capSpin:false,capErr:(e&&e.message)||'Erro ao gerar a legenda.'});}
+  };
+  copyCapOut=()=>{try{navigator.clipboard.writeText(this.state.capOut||'');}catch(e){}this.setState({capCopyLabel:'Copiado!'});setTimeout(()=>this.setState({capCopyLabel:'Copiar legenda'}),2000);};
+  mockCaptions(cname){
+    const openers=['✨ Elegância que atravessa gerações.','🪨 Cada veio conta uma história única.','💎 Sofisticação que transforma ambientes.'];
+    const bodies=[
+      'Na '+cname+', cada peça é selecionada e trabalhada com precisão artesanal para valorizar o seu projeto. Um acabamento que une durabilidade e beleza natural.',
+      'Mais do que revestimento, uma assinatura de bom gosto. Conheça as possibilidades que a '+cname+' pode trazer para o seu espaço.'
+    ];
+    const ctas=['📲 Fale com a gente e solicite um orçamento.','👉 Chame no direct e agende uma visita ao showroom.'];
+    const tags='\n\n#mármore #pedrasnaturais #decoração #arquitetura #'+cname.toLowerCase().replace(/\s+/g,'');
+    const mk=(i)=>openers[i%3]+'\n\n'+bodies[i%2]+'\n\n'+ctas[i%2]+tags;
+    return[mk(0),mk(1)];
+  }
+  generateCaption=()=>{
+    const cid=this.state.modal.cid;const cname=this.db.clients[cid].name;
+    this.setState({edSpin:true,edOut:null});
+    setTimeout(()=>{
+      const caps=this.mockCaptions(cname);
+      this.setState({edSpin:false,edOut:caps});
+    },900);
+  };
+  copyEdCap=(text,i)=>()=>{navigator.clipboard.writeText(text);this.showToast('Legenda copiada.','ok');};
+  useEdCap=(text)=>()=>this.setState({edCaption:text});
+
+  // ═ publish modal
+  openPostPublish=(cid,mid,idx)=>{this.setState({modal:{kind:'publish',cid,mid,idx},pubCopyLabel:'📋 Copiar legenda'});};
+  confirmPosted=()=>{
+    const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    const now=new Date();post.done=true;post.ready=true;post.date=now.toLocaleDateString('pt-BR');post.time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const pulseKey=mid+'|'+cid+'|'+idx;
+    this.saveData();this.setState({modal:null,pulseKey});this.forceUpdate();
+    clearTimeout(this._pulseT);this._pulseT=setTimeout(()=>this.setState({pulseKey:null}),900);
+  };
+  undoPosted=()=>{
+    const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    post.done=false;post.date=null;post.time=null;this.saveData();this.setState({modal:null});this.forceUpdate();
+  };
+  downloadPostImg=()=>{
+    const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];if(!post.img)return;
+    const cn=(this.db.clients[cid]?.name||'post').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    const ext=(String(post.img).match(/data:image\/(\w+)/)||[,'jpg'])[1];
+    const a=document.createElement('a');a.href=post.img;a.download=cn+'_post'+idx+'.'+ext;document.body.appendChild(a);a.click();a.remove();
+  };
+  copyPubCap=()=>{
+    const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];
+    navigator.clipboard.writeText((post.caption||'').trim());this.setState({pubCopyLabel:'Copiado!'});setTimeout(()=>this.setState({pubCopyLabel:'📋 Copiar legenda'}),2000);
+  };
+  approvePost=(cid,mid,idx)=>()=>{const post=this.db.data[mid][cid][this.state.month]['p'+idx];post.pendingApproval=!post.pendingApproval;this.saveData();this.forceUpdate();};
+
+  closeModal=()=>this.setState({modal:null});
+  onBackdropClick=(e)=>{if(e.target===e.currentTarget)this.closeModal();};
+  confirmYes=()=>{if(this.state.modal&&this.state.modal.onYes)this.state.modal.onYes();};
+
+  // ═ whatsapp
+  gerarWpp=()=>{
+    const cid=this.state.clientSel,mid=this.state.month;const c=this.db.clients[cid];if(!c)return;
+    const total=c.posts;const posts=this.db.data[this.state.member][cid][mid];
+    let done=0;for(let i=1;i<=total;i++)if(posts['p'+i]?.done)done++;
+    const msg='Fala, pessoal. Tudo certo?\n\nPassando pra avisar que realizamos mais uma postagem no Instagram de vocês. Caso queiram, podem ficar à vontade pra irem conferir, curtir, compartilhar e etc. Em breve postaremos outras e avisamos vocês. Conta com a gente e vamos pra cima!\n\n_'+c.name+' — '+done+' de '+total+' posts realizados em '+MONTH_FULL[mid]+'_';
+    this.setState({wppShown:true,wppText:msg,wppCopyLabel:'Copiar'});
+  };
+  copyWpp=()=>{navigator.clipboard.writeText(this.state.wppText);this.setState({wppCopyLabel:'Copiado!'});setTimeout(()=>this.setState({wppCopyLabel:'Copiar'}),2000);};
+  resetMonth=()=>{
+    const cid=this.state.clientSel,mid=this.state.month;const c=this.db.clients[cid];if(!c)return;
+    this.setState({modal:{kind:'confirm',title:'Limpar mês',desc:'Limpar posts de '+MONTH_FULL[mid]+' para '+c.name+'?',danger:true,onYes:()=>{
+      const n=c.posts;for(let i=1;i<=n;i++)this.db.data[this.state.member][cid][mid]['p'+i]={done:false,ready:false,pendingApproval:false,date:null,time:null,img:null,caption:''};
+      this.saveData();this.setState({modal:null,wppShown:false});this.forceUpdate();
+    }}});
+  };
+
+  // ═ relatorio / insights (mock IA)
+  gerarRelatorio=()=>{
+    const cid=this.state.relClient,mid=this.state.relMember,mo=this.state.relMonth;const c=this.db.clients[cid];if(!c)return;
+    this.ensureClientData(mid,cid);const total=c.posts;const posts=this.db.data[mid][cid][mo];let done=0;for(let i=1;i<=total;i++)if(posts['p'+i]?.done)done++;
+    this.setState({relSpin:true,relOut:null});
+    setTimeout(()=>{
+      const pct=total?Math.round(done/total*100):0;
+      const text='Olá, tudo bem?\n\nPassando para compartilhar o resumo de '+MONTH_FULL[mo]+' da '+c.name+'.\n\nForam realizadas '+done+' de '+total+' postagens programadas ('+pct+'% do planejado), mantendo a presença da marca ativa e consistente no Instagram.\n\nSeguimos comprometidos em manter a régua de qualidade e frequência, sempre buscando reforçar a identidade sofisticada da marca no digital.\n\nQualquer ajuste ou preferência de pauta, é só nos chamar — vamos juntos pro próximo mês! 🙌';
+      this.setState({relSpin:false,relOut:{title:'Relatório gerado',text}});
+    },900);
+  };
+  gerarDias=()=>{
+    const cid=this.state.relClient,mid=this.state.relMember;const c=this.db.clients[cid];if(!c)return;
+    this.setState({relSpin:true,relOut:null});
+    setTimeout(()=>{
+      const text='1. Melhores dias: terça, quinta e sábado — maior engajamento observado no nicho de decoração/pedras.\n\n2. Melhores horários: 11h–12h e 18h–20h, quando o público navega antes do almoço e à noite.\n\n3. Calendário sugerido para '+c.posts+' posts/mês: distribua 1 post por semana nos dias de pico, reservando 1 extra para lançamentos ou obras concluídas.\n\n4. Motivo: conteúdo de mármore/pedra performa melhor com luz natural e close-ups — priorize esses horários para stories complementares.';
+      this.setState({relSpin:false,relOut:{title:'Melhor dia e horário',text}});
+    },900);
+  };
+  copyRel=()=>{navigator.clipboard.writeText(this.state.relOut.text);this.setState({relCopyLabel:'Copiado!'});setTimeout(()=>this.setState({relCopyLabel:'Copiar'}),2000);};
+
+  gerarInsights=()=>{
+    const cid=this.state.insClient,mid=this.state.insMember;const c=this.db.clients[cid];if(!c)return;
+    this.ensureClientData(mid,cid);const total=c.posts;let done=0;
+    for(const mo of MONTH_KEYS)for(let i=1;i<=total;i++)if(this.db.data[mid][cid][mo]?.['p'+i]?.done)done++;
+    if(done===0){this.setState({insOut:'empty'});return;}
+    this.setState({insSpin:true,insOut:null});
+    setTimeout(()=>{
+      const blocks=[
+        {title:'📊 Análise do padrão',text:'O histórico da '+c.name+' mostra um ritmo de postagem relativamente estável, com concentração de publicações no início e meio do mês. Isso sugere uma operação organizada, mas com espaço para distribuir melhor os posts ao longo das quatro semanas.'},
+        {title:'⚠️ Pontos de atenção',text:'Há meses com queda perceptível na frequência, o que pode indicar dependência de aprovações demoradas do cliente ou falta de banco de imagens pronto. Vale antecipar a produção de criativos para evitar picos de atraso no fim do mês.'},
+        {title:'💡 Sugestões criativas',text:'1) Série "bastidores da obra" mostrando o corte e acabamento da pedra.\n2) Antes/depois de ambientes com o material aplicado.\n3) Depoimento em vídeo curto de um cliente satisfeito, reforçando durabilidade e sofisticação.'}
+      ];
+      this.setState({insSpin:false,insOut:blocks});
+    },1000);
+  };
+  copyInsBlock=(text)=>()=>{navigator.clipboard.writeText(text);this.showToast('Copiado.','ok');};
+
+  navBase(active){return 'display:flex;align-items:center;gap:11px;width:100%;text-align:left;font-size:13px;font-weight:500;padding:10px 12px;border:none;border-radius:8px;background:'+(active?'rgba(255,122,26,.14)':'transparent')+';color:'+(active?'#ffffff':'#a3a3a3')+';cursor:pointer;'+(active?'font-weight:600;box-shadow:inset 3px 0 0 #ff7a1a;':'');}
+
+  monthsList(year){return monthsOfYear(parseInt(year)).map(k=>({key:k,label:MONTH_FULL[k]}));}
+
+  buildDonutArcs(segs){
+    const C=2*Math.PI*46;const total=segs.reduce((a,s)=>a+s.val,0);let acc=0;const arcs=[];
+    if(total>0)segs.forEach(s=>{if(s.val<=0)return;const f=s.val/total;const len=f*C;const startDeg=acc/total*360;
+      arcs.push({style:'stroke:'+s.color+';stroke-dasharray:'+len.toFixed(2)+' '+C.toFixed(2)+';transform:rotate('+(startDeg-90).toFixed(2)+'deg);transform-origin:60px 60px;transition:stroke-dasharray .5s ease;'});
+      acc+=s.val;});
+    return arcs;
+  }
+
+  renderVals(){
+    if(!this.db)this.db=this.defaultDb();
+    this._sc={};
+    
+    const db=this.db,st=this.state;
+    const yearsList=YEARS.map(y=>({key:String(y),label:String(y)}));
+    const dashMonthsList=this.monthsList(st.dashYear),trackerMonthsList=this.monthsList(st.trackerYear),
+      panelMonthsList=this.monthsList(st.panelYear),relMonthsList=this.monthsList(st.relYear);
+    const squadsList=Object.keys(db.squads).map(k=>({key:k,label:db.squads[k].label}));
+    const selectStyle='font-size:13px;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;color:#f5f5f5;width:100%;outline:none;';
+    const inputStyle='font-size:13px;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;color:#f5f5f5;width:100%;outline:none;';
+
+    // ═ Q SEARCH
+    const q=(st.qsearch||'').trim().toLowerCase();
+    let qResults=[];
+    if(q){
+      for(const mid in db.members)for(const cid of db.members[mid].clients||[]){
+        if(!db.clients[cid])continue;
+        if(db.clients[cid].name.toLowerCase().includes(q))qResults.push({name:db.clients[cid].name,meta:db.members[mid].label+' · Squad '+db.members[mid].squad,onSelect:()=>this.goToPost(mid,cid,st.month)});
+      }
+      qResults=qResults.slice(0,8);
+    }
+
+    // ═ NAV styles
+    const navDashStyle=this.navBase(st.view==='dashboard'),navTrackerStyle=this.navBase(st.view==='tracker'),navPanelStyle=this.navBase(st.view==='panel'),
+      navCriativosStyle=this.navBase(st.view==='criativos'),navRelatorioStyle=this.navBase(st.view==='relatorio'),navClientesStyle=this.navBase(st.view==='clientes'),navInsightsStyle=this.navBase(st.view==='insights');
+    const navIconColor=(key)=>st.view===key?GOLD:'#737373';
+    const navDashDotStyle='width:6px;height:6px;border-radius:2px;background:'+navIconColor('dashboard')+';';
+    const navTrackerBoxStyle='width:14px;height:14px;border:1.5px solid '+navIconColor('tracker')+';border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+    const navTrackerCircleStyle='width:5px;height:5px;border-radius:50%;background:'+navIconColor('tracker')+';';
+    const navPanelBarStyle='background:'+navIconColor('panel')+';border-radius:2px;';
+    const navCriativosBoxStyle='width:14px;height:14px;border:1.5px solid '+navIconColor('criativos')+';border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;';
+    const navCriativosSunStyle='width:5px;height:5px;border-radius:50%;background:'+navIconColor('criativos')+';margin:-6px 0 0 -6px;';
+    const navRelBarStyle='background:'+navIconColor('relatorio')+';border-radius:2px;';
+    const navInsightsBoxStyle='width:14px;height:14px;border:1.5px solid '+navIconColor('insights')+';border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+    const navInsightsDotStyle='width:6px;height:6px;border-radius:50%;background:'+navIconColor('insights')+';';
+    const navClientesCircle1Style='position:absolute;top:0;left:0;width:9px;height:9px;border-radius:50%;border:1.5px solid '+navIconColor('clientes')+';background:#131313;';
+    const navClientesCircle2Style='position:absolute;top:0;left:6px;width:9px;height:9px;border-radius:50%;border:1.5px solid '+navIconColor('clientes')+';background:#131313;';
+
+    // ═ TRACKER
+    const squad=db.squads[st.squad]?st.squad:Object.keys(db.squads)[0];
+    const squadObj=db.squads[squad]||{label:'',members:[]};
+    const squadChipLabel=squadObj.label;const nMem=(squadObj.members||[]).length;
+    const squadChipMeta=nMem+' membro'+(nMem!==1?'s':'');
+    const memberChips=(squadObj.members||[]).map(mid=>{
+      const m=db.members[mid];if(!m)return null;const active=mid===st.member;
+      return{label:m.label,style:'font-size:12px;font-weight:500;padding:6px 16px;border-radius:100px;border:1px solid '+(active?'rgba(255,255,255,.2)':'rgba(255,255,255,.12)')+';background:'+(active?'#222222':'transparent')+';color:'+(active?'#f5f5f5':'#a3a3a3')+';cursor:pointer;',
+        onClick:()=>this.setState({member:mid,clientSel:(m.clients||[])[0]||''})};
+    }).filter(Boolean);
+    const squadBtns=Object.keys(db.squads).map(k=>{const on=k===squad;return{label:k,onClick:this.pickSquad(k),style:'width:46px;height:42px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:1px solid '+(on?'#ff7a1a':'rgba(255,255,255,.12)')+';background:'+(on?'#ff7a1a':'#131313')+';color:'+(on?'#0a0a0a':'#a3a3a3')+';'};});
+    const pq=(st.psearch||'').trim().toLowerCase();let pResults=[];
+    if(pq){for(const mid in db.members)for(const c of db.members[mid].clients||[]){if(db.clients[c]&&db.clients[c].name.toLowerCase().includes(pq))pResults.push({name:db.clients[c].name,meta:db.members[mid].label+' · Squad '+db.members[mid].squad,onSelect:()=>this.goToPost(mid,c,st.month)});}pResults=pResults.slice(0,8);}
+    const clientOptions=(db.members[st.member]?.clients||[]).map(c=>({key:c,label:db.clients[c]?.name||c}));
+    const cid=st.clientSel,cdata=db.clients[cid];
+    const hasClient=!!cdata,noClient=!cdata;
+    let sDone=0,sLeft=0,progFrac='0 / 0',sBadgeStyle=this.badgeStyleFor('empty'),sBadgeLabel='—',progBarStyle='height:100%;background:#f5f5f5;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%;';
+    let postsGrid=[],pinNoteText='',pinNoteStyle='',ritmoStyle='display:none;',ritmoIcon='',ritmoText='';
+    let postsContainerStyle='display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px;';
+    const postsViewToggleLabel=st.postsViewMode==='grid'?'☰ Ver em lista':'▦ Ver em grade';
+    if(cdata){
+      this.ensureClientData(st.member,cid);
+      const total=cdata.posts;const posts=db.data[st.member][cid][st.month];
+      let done=0;for(let i=1;i<=total;i++)if(posts['p'+i].done)done++;
+      sDone=done;sLeft=total-done;progFrac=done+' / '+total;
+      const pct=total?(done/total)*100:0;
+      const status=this.getStatus(done,total);
+      progBarStyle='height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);width:'+pct+'%;background:'+(done===total&&total?GREEN:'#f5f5f5')+';';
+      sBadgeStyle=this.badgeStyleFor(status.cls);sBadgeLabel=status.lbl;
+
+      for(let i=1;i<=total;i++){
+        const p=posts['p'+i];const posted=!!p.done;const ready=posted||!!p.ready||!!p.img||(p.caption&&p.caption.trim());
+        let badgeLabel='Vazio',badgeCls='empty';
+        if(posted){badgeLabel='Postado';badgeCls='ok';}
+        else if(p.pendingApproval){badgeLabel='⏳ Aguard. aprovação';badgeCls='warn';}
+        else if(ready){badgeLabel='Pronto';badgeCls='warn';}
+        let sub=posted?('Publicado em '+(p.date||'')+(p.time?' às '+p.time:'')):(p.caption&&p.caption.trim()?p.caption.replace(/\n/g,' ').slice(0,60)+(p.caption.length>60?'…':''):'Sem conteúdo ainda');
+        const isList=st.postsViewMode==='list';
+        const justPosted=st.pulseKey===(st.member+'|'+cid+'|'+i);
+        const noImgBg='repeating-linear-gradient(135deg,#1a1a1a,#1a1a1a 10px,#171717 10px,#171717 20px)';
+        const mIdx=MONTH_KEYS.indexOf(st.month);
+        const prevPost=mIdx>0?db.data[st.member]?.[cid]?.[MONTH_KEYS[mIdx-1]]?.['p'+i]:null;
+        postsGrid.push({
+          idx:i,
+          cardStyle:'background:#131313;border:1px solid '+(posted?'oklch(72% 0.13 152 / .3)':'rgba(255,255,255,.06)')+';border-radius:14px;overflow:hidden;transition:border-color .2s;'+(isList?'display:flex;flex-direction:row;align-items:center;':'')+(justPosted?'animation:pulseGold .8s ease;':''),
+          thumbStyle:isList
+            ?('width:64px;height:64px;flex-shrink:0;border-radius:10px;margin:10px;background:'+(p.img?'#000 url("'+this.bgUrl(p.img)+'") center/cover no-repeat':noImgBg)+';display:flex;align-items:center;justify-content:center;')
+            :('width:100%;aspect-ratio:1;background:'+(p.img?'#000 url("'+this.bgUrl(p.img)+'") center/cover no-repeat':noImgBg)+';display:flex;align-items:center;justify-content:center;'),
+          mainStyle:isList?'padding:10px 14px 10px 0;flex:1;min-width:0;':'padding:12px 14px 14px;',
+          noImg:!p.img,
+          title:'Post '+i,
+          badgeStyle:this.badgeStyleFor(badgeCls),badgeLabel,
+          subStyle:'font-size:11px;color:'+(posted?GREEN:'#737373')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;',
+          sub,
+          showAdd:!ready,showManage:ready&&!posted,showDone:posted,
+          showDuplicate:!ready&&!!prevPost&&!!(prevPost.img||prevPost.caption),
+          onDuplicate:this.duplicatePostFromPrev(cid,st.member,i),
+          approveLabel:p.pendingApproval?'✓ Aprovado pelo cliente':'⏳ Aguardando aprovação',
+          approveStyle:'border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:1px solid '+(p.pendingApproval?'oklch(84% 0.15 92 / .4)':'rgba(255,255,255,.12)')+';color:'+(p.pendingApproval?YELLOW:'#a3a3a3')+';',
+          onAdd:()=>this.openPostEditor(cid,st.member,i),
+          onApprove:this.approvePost(cid,st.member,i),
+          onPublish:()=>this.openPostPublish(cid,st.member,i),
+          onEdit:()=>this.openPostEditor(cid,st.member,i),
+          onView:()=>this.openPostPublish(cid,st.member,i)
+        });
+      }
+      if(st.postsViewMode==='list')postsContainerStyle='display:flex;flex-direction:column;gap:10px;';
+      const note=cdata.pinnedNote||'';
+      pinNoteText=note.trim()?note:'Nenhum lembrete definido. Clique em Editar para adicionar.';
+      pinNoteStyle='font-size:12px;color:'+(note.trim()?'#a3a3a3':'#737373')+';line-height:1.6;white-space:pre-line;'+(note.trim()?'':'font-style:italic;');
+
+      const today=new Date();
+      const curYear=today.getFullYear();const curMonth=today.getMonth()+1;
+      // st.month formato "YYYY-MM"
+      const [selYear,selMonth]=st.month.split('-').map(Number);
+      const isCurMonth=(selYear===curYear&&selMonth===curMonth);
+      const isPastMonth=(selYear<curYear)||(selYear===curYear&&selMonth<curMonth);
+      const day=today.getDate();const week=Math.min(4,Math.ceil(day/7));
+      const expected=Math.round((week/4)*total);
+      ritmoStyle='display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:20px;font-size:12px;';
+      if(!isCurMonth&&!isPastMonth){
+        // mês futuro — sem alerta
+        ritmoStyle='display:none;';ritmoIcon='';ritmoText='';
+      } else if(isPastMonth){
+        // mês passado — resumo final
+        if(done>=total){ritmoStyle+='background:'+GREEN_D+';border:1px solid '+GREEN+'33;color:'+GREEN+';';ritmoIcon='✅';ritmoText='Mês concluído — '+done+' de '+total+' posts realizados. Ótimo trabalho!';}
+        else{ritmoStyle+='background:'+RED_D+';border:1px solid '+RED+'33;color:'+RED+';';ritmoIcon='📋';ritmoText='Mês encerrado com '+done+' de '+total+' posts realizados.';}
+      } else {
+        // mês atual — verifica ritmo por semana
+        if(done>=expected){ritmoStyle+='background:'+GREEN_D+';border:1px solid '+GREEN+'33;color:'+GREEN+';';ritmoIcon='✅';ritmoText='No ritmo certo — '+done+' de '+total+' já feitos (semana '+week+' de 4). Continue assim!';}
+        else if(done>=expected-1){ritmoStyle+='background:'+YELLOW_D+';border:1px solid '+YELLOW+'33;color:'+YELLOW+';';ritmoIcon='⚠️';ritmoText='Quase lá — esperado '+expected+' até a semana '+week+', você tem '+done+'. Não deixa acumular!';}
+        else{ritmoStyle+='background:'+RED_D+';border:1px solid '+RED+'33;color:'+RED+';';ritmoIcon='🚨';ritmoText='Atrasado — já deveria ter '+expected+' posts até a semana '+week+', mas só tem '+done+'. Hora de agir!';}
+      }
+    }
+    const phoneDigits=(cdata?.phone||'').replace(/\D/g,'');
+    const wppHasLink=!!phoneDigits;
+    const wppLink=phoneDigits?('https://wa.me/'+phoneDigits+'?text='+encodeURIComponent(st.wppText)):'';
+
+    // ═ PANEL
+    const panelMemberOptions=(st.panelSquad==='all'?Object.keys(db.members):(db.squads[st.panelSquad]?.members||[])).filter(m=>db.members[m]).map(m=>({key:m,label:db.members[m].label}));
+    let panelCards=[];
+    for(const mid in db.members){
+      const m=db.members[mid];
+      if(st.panelSquad!=='all'&&m.squad!==st.panelSquad)continue;
+      if(st.panelMember!=='all'&&st.panelMember!==mid)continue;
+      for(const c of m.clients||[]){
+        if(!db.clients[c])continue;this.ensureClientData(mid,c);
+        const total=db.clients[c].posts;let dc=0;for(let i=1;i<=total;i++)if(db.data[mid][c][st.panelMonth]?.['p'+i]?.done)dc++;
+        const status=this.getStatus(dc,total);
+        if(st.panelOnlyLate&&status.cls==='ok')continue;
+        const months=monthsOfYear(parseInt(st.panelYear)).map(mo=>{let d=0;for(let i=1;i<=total;i++)if(db.data[mid][c][mo]?.['p'+i]?.done)d++;const p=(d/total)*100;
+          return{label:MONTH_LABEL[mo],frac:d+'/'+total,fillStyle:'height:100%;border-radius:2px;transition:width .3s;width:'+p+'%;background:'+(d===total?GREEN:'#f5f5f5')+';opacity:'+(d===total?'1':'.5')+';'};});
+        panelCards.push({client:db.clients[c].name,meta:m.label+' · Squad '+m.squad,badgeStyle:this.badgeStyleFor(status.cls),badgeLabel:status.lbl,months,onGo:()=>this.goToPost(mid,c,st.panelMonth)});
+      }
+    }
+
+    // ═ CRIATIVOS
+    const criMemberOptions=(db.squads[st.criSquad]?.members||[]).filter(m=>db.members[m]).map(m=>({key:m,label:db.members[m].label}));
+    const criClientOptions=(db.members[st.criMember]?.clients||[]).map(c=>({key:c,label:db.clients[c]?.name||c}));
+    let criativosImgs=[];
+    if(db.clients[st.criClient]){
+      const n=db.clients[st.criClient].posts;
+      for(const mo of MONTH_KEYS){
+        const md=db.data[st.criMember]?.[st.criClient]?.[mo];if(!md)continue;
+        for(let i=1;i<=n;i++){const p=md['p'+i];if(!p||!(p.img||(p.caption&&p.caption.trim())))continue;
+          if(st.criFilter==='posted'&&!p.done)continue;if(st.criFilter==='ready'&&p.done)continue;
+          criativosImgs.push({noImg:!p.img,bgStyle:'width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:'+(p.img?'#000 url("'+this.bgUrl(p.img)+'") center/cover no-repeat':'repeating-linear-gradient(135deg,#1a1a1a,#1a1a1a 10px,#171717 10px,#171717 20px)')+';',
+            meta:MONTH_LABEL[mo]+' '+MONTH_YEAR[mo]+' · Post '+i,badgeStyle:this.badgeStyleFor(p.done?'ok':'warn'),badgeLabel:p.done?'Postado':'Pronto',cap:(p.caption||'').trim()||'Sem legenda'});}
+      }
+      criativosImgs.reverse();
+    }
+    const criCountLabel=criativosImgs.length+' criativo'+(criativosImgs.length!==1?'s':'')+(db.clients[st.criClient]?' · '+db.clients[st.criClient].name:'');
+
+    // ═ RELATORIO
+    const relMemberOptions=(db.squads[st.relSquad]?.members||[]).filter(m=>db.members[m]).map(m=>({key:m,label:db.members[m].label}));
+    const relClientOptions=(db.members[st.relMember]?.clients||[]).map(c=>({key:c,label:db.clients[c]?.name||c}));
+
+    // ═ INSIGHTS
+    const insMemberOptions=(db.squads[st.insSquad]?.members||[]).filter(m=>db.members[m]).map(m=>({key:m,label:db.members[m].label}));
+    const insClientOptions=(db.members[st.insMember]?.clients||[]).map(c=>({key:c,label:db.clients[c]?.name||c}));
+
+    // ═ CLIENTES/MEMBROS lists
+    const ncMemberOptions=(db.squads[st.ncSquad]?.members||[]).filter(m=>db.members[m]).map(m=>({key:m,label:db.members[m].label}));
+    let clientRows=[];
+    for(const sq in db.squads){
+      let sqHas=false;const rows=[];
+      for(const mid of db.squads[sq].members||[]){
+        const m=db.members[mid];if(!m||(m.clients||[]).length===0)continue;sqHas=true;
+        rows.push({isSub:true,text:m.label});
+        for(const c of m.clients||[]){
+          const info=db.clients[c];if(!info)continue;
+          rows.push({isItem:true,name:info.name,meta:info.posts+' post'+(info.posts>1?'s':'')+' / mês'+(info.phone?' · '+info.phone:''),
+            avatarDot:'width:8px;height:8px;border-radius:50%;background:'+(info.avatarColor||GOLD)+';flex-shrink:0;',
+            favLabel:info.favorite?'★':'☆',favStyle:'background:transparent;border:none;color:'+(info.favorite?GOLD:'#737373')+';font-size:15px;cursor:pointer;padding:0 4px;',
+            onFav:this.toggleFavorite(c),onEdit:()=>this.editClient(c),onDup:this.duplicateClientAction(c,mid),onRemove:()=>this.removeClient(c,mid)});
+        }
+      }
+      if(sqHas)clientRows.push({isHeader:true,text:db.squads[sq].label},...rows);
+    }
+    let memberRows=[];
+    for(const sq in db.squads){
+      const members=db.squads[sq].members||[];if(!members.length)continue;
+      memberRows.push({isHeader:true,text:db.squads[sq].label});
+      for(const mid of members){const m=db.members[mid];if(!m)continue;const nc=(m.clients||[]).length;
+        memberRows.push({isItem:true,name:m.label,meta:nc+' cliente'+(nc!==1?'s':'')+' cadastrado'+(nc!==1?'s':''),onRemove:()=>this.removeMember(mid)});}
+    }
+
+    // ═ DASHBOARD
+    let gDone=0,gTotal=0,gMembers=0;const gClients=new Set();
+    for(const mid in db.members){gMembers++;const s=this.memberMonthStats(mid,st.dashMonth);gDone+=s.done;gTotal+=s.total;(db.members[mid].clients||[]).forEach(c=>{if(db.clients[c])gClients.add(c);});}
+    const dashPct=gTotal?Math.round(gDone/gTotal*100):0;
+    const dmIdx=MONTH_KEYS.indexOf(st.dashMonth);
+    let dashTrendText='',dashTrendStyle='';
+    if(dmIdx>0){
+      const prevMo=MONTH_KEYS[dmIdx-1];const prevStats=this.globalMonthStats(prevMo);
+      const prevPct=prevStats.total?Math.round(prevStats.done/prevStats.total*100):0;
+      const diff=dashPct-prevPct;
+      const col=diff>0?GREEN:(diff<0?RED:'#a3a3a3');
+      dashTrendText=(diff>0?'↑ +':diff<0?'↓ ':'= ')+(diff!==0?Math.abs(diff):'igual a')+(diff!==0?' pontos vs '+MONTH_LABEL[prevMo]:' '+MONTH_LABEL[prevMo]);
+      dashTrendStyle='font-size:11px;margin-top:10px;color:'+col+';font-weight:600;';
+    }
+    const kpis=[
+      {label:'Membros',val:String(gMembers),suffix:'',valStyle:'font-family:\'Poppins\',sans-serif;font-size:30px;font-weight:700;line-height:1;color:#f5f5f5;'},
+      {label:'Clientes',val:String(gClients.size),suffix:'',valStyle:'font-family:\'Poppins\',sans-serif;font-size:30px;font-weight:700;line-height:1;color:#f5f5f5;'},
+      {label:'Posts no mês',val:gDone+'',suffix:'/'+gTotal,valStyle:'font-family:\'Poppins\',sans-serif;font-size:30px;font-weight:700;line-height:1;color:#f5f5f5;'},
+      {label:'Conclusão',val:dashPct+'',suffix:'%',valStyle:'font-family:\'Poppins\',sans-serif;font-size:30px;font-weight:700;line-height:1;color:'+GOLD+';'}
+    ];
+    const squadCards=Object.keys(db.squads).map(sq=>{
+      const s=this.squadMonthStats(sq,st.dashMonth);const p=s.total?Math.round(s.done/s.total*100):0;const status=this.getStatus(s.done,s.total);
+      return{label:db.squads[sq].label,members:s.members,clients:s.clients,frac:s.done+'/'+s.total,badgeStyle:this.badgeStyleFor(status.cls),badgeLabel:status.lbl,
+        cardStyle:'background:#131313;border:1px solid rgba(255,255,255,.06);border-left:3px solid '+GOLD+';border-radius:14px;padding:20px;',
+        barStyle:'height:100%;border-radius:3px;transition:width .5s;width:'+p+'%;background:'+(p===100&&s.total?GREEN:'#f5f5f5')+';'};
+    });
+    const memberRowsStats=Object.keys(db.members).map(mid=>Object.assign({mid},this.memberMonthStats(mid,st.dashMonth))).sort((a,b)=>{const pa=a.total?a.done/a.total:0,pb=b.total?b.done/b.total:0;return pb-pa;})
+      .map(r=>{const m=db.members[r.mid];if(!m)return null;const p=r.total?Math.round(r.done/r.total*100):0;const status=this.getStatus(r.done,r.total);
+        return{label:m.label,meta:(db.squads[m.squad]?.label||'')+' · '+r.clients+' cliente'+(r.clients!==1?'s':''),
+          fillStyle:'height:100%;border-radius:3px;transition:width .4s;width:'+p+'%;background:'+(p===100&&r.total?GREEN:'#f5f5f5')+';',
+          frac:r.done+'/'+r.total,badgeStyle:this.badgeStyleFor(status.cls),badgeLabel:status.lbl};}).filter(Boolean);
+    const hasMembers=memberRowsStats.length>0,noMembers=!hasMembers;
+    const sm=this.statusMonthCounts(st.dashMonth);
+    const donutArcs=this.buildDonutArcs([{val:sm.posted,color:GREEN},{val:sm.ready,color:YELLOW},{val:sm.empty,color:'#3a3a3a'}]);
+    const donutLegend=[{label:'Postados',val:sm.posted,dotStyle:'background:'+GREEN+';'},{label:'Prontos',val:sm.ready,dotStyle:'background:'+YELLOW+';'},{label:'Vazios',val:sm.empty,dotStyle:'background:#3a3a3a;'}];
+    const dashChartMonth=MONTH_FULL[st.dashMonth];
+    const monthBars=monthsOfYear(parseInt(st.dashYear)).map(mo=>{const g=this.globalMonthStats(mo);const p=g.total?Math.round(g.done/g.total*100):0;const cur=mo===st.dashMonth;
+      return{count:g.done,label:MONTH_LABEL[mo],fillStyle:'width:100%;border-radius:5px;transition:height .5s cubic-bezier(.4,0,.2,1);height:'+p+'%;background:'+(cur?GOLD:'#5c5c5c')+';',lblStyle:'font-size:9px;text-transform:uppercase;letter-spacing:0;color:'+(cur?'#f5f5f5':'#737373')+';font-weight:'+(cur?'600':'400')+';'};});
+    let alertItems=[];
+    for(const mid in db.members){const m=db.members[mid];for(const c of m.clients||[]){if(!db.clients[c])continue;this.ensureClientData(mid,c);
+      const total=db.clients[c].posts;let done=0;for(let i=1;i<=total;i++)if(db.data[mid][c][st.dashMonth]?.['p'+i]?.done)done++;
+      const status=this.getStatus(done,total);if(status.cls==='bad'||status.cls==='warn')alertItems.push({mid,cid:c,m,done,total,status});}}
+    alertItems.sort((a,b)=>(a.done/(a.total||1))-(b.done/(b.total||1)));
+    alertItems=alertItems.slice(0,8).map(it=>({client:db.clients[it.cid].name,meta:it.m.label+' · '+it.done+'/'+it.total+' posts',badgeStyle:this.badgeStyleFor(it.status.cls),badgeLabel:it.status.lbl,onGo:()=>this.goToPost(it.mid,it.cid,st.dashMonth)}));
+
+    // ═ toast
+    const toastColors={ok:GREEN,warn:YELLOW,bad:RED};
+    const toastAccentStyle=st.toast?('border-left:3px solid '+(toastColors[st.toast.type]||GOLD)+';'):'';
+
+    // ═ modal derived
+    const modal=st.modal;
+    const isEditorModal=modal?.kind==='editor',isPublishModal=modal?.kind==='publish',isConfirmModal=modal?.kind==='confirm',isPinModal=modal?.kind==='pin',isClientEditModal=modal?.kind==='clientEdit';
+    let modalTitle='',edImg=st.edImg,edHasImg=!!edImg,edNoImg=!edImg,edIgUser='',edAvatarInitial='',edCaptionPreview='Adicione uma legenda',edHasOut=!!st.edOut,edSuggestions=[];
+    if(isEditorModal){
+      const c=db.clients[modal.cid];modalTitle='Post '+modal.idx+' · '+(c?.name||'');edIgUser=this.igUser(modal.cid);edAvatarInitial=(c?.name||'?').charAt(0).toUpperCase();
+      const v=(st.edCaption||'').trim();if(v)edCaptionPreview=v.replace(/\n/g,' ').slice(0,140)+(v.length>140?'…':'');
+      if(st.edOut)edSuggestions=st.edOut.map((t,i)=>({tag:'Sugestão '+(i+1),text:t,copyLabel:'Copiar',onCopy:this.copyEdCap(t,i),onUse:this.useEdCap(t)}));
+    }
+    let pubTitle='',pubDesc='',pubHasImg=false,pubNoImg=true,pubImg='',pubCapText='',pubPosted=false,pubNotPosted=false;
+    if(isPublishModal){
+      const post=db.data[modal.mid][modal.cid][st.month]['p'+modal.idx];pubPosted=!!post.done;pubNotPosted=!pubPosted;
+      pubTitle=pubPosted?('Post '+modal.idx+' publicado'):('Publicar Post '+modal.idx);
+      pubDesc=pubPosted?('Publicado em '+(post.date||'')+(post.time?' às '+post.time:'')):'Baixe a imagem, copie a legenda e publique no Instagram. Depois marque como postado.';
+      pubHasImg=!!post.img;pubNoImg=!post.img;pubImg=post.img||'';pubCapText=(post.caption||'').trim()||'Sem legenda';
+    }
+    let confirmTitle='',confirmDesc='',confirmYesStyle='',confirmYesLabel='';
+    if(isConfirmModal){confirmTitle=modal.title;confirmDesc=modal.desc;confirmYesLabel=modal.danger?'Excluir':'Confirmar';
+      confirmYesStyle='border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;'+(modal.danger?('background:'+RED_D+';color:'+RED+';border:1px solid '+RED+'4d;'):('background:#ff7a1a;color:#0a0a0a;'));}
+    let pinClientName='';if(isPinModal)pinClientName=db.clients[modal.cid]?.name||'';
+    let avatarColorOptions=[];
+    if(isEditorModal){}
+    if(isClientEditModal)avatarColorOptions=AVATAR_COLORS.map(col=>({onClick:this.setCeAvatarColor(col),style:'width:26px;height:26px;border-radius:50%;background:'+col+';border:2px solid '+(st.ceAvatarColor===col?'#f5f5f5':'transparent')+';cursor:pointer;padding:0;'}));
+    let edAvatarCircleStyle='';
+    if(isEditorModal)edAvatarCircleStyle='width:24px;height:24px;border-radius:50%;background:'+(db.clients[modal.cid]?.avatarColor||GOLD)+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0a0a0a;flex-shrink:0;';
+    const edImgBigStyle=edHasImg?('width:100%;max-height:260px;min-height:150px;border-radius:8px;background:#000 url("'+this.bgUrl(edImg)+'") center/cover no-repeat;'):'';
+    const edImgSmallStyle=edHasImg?('width:100%;height:100%;background:#000 url("'+this.bgUrl(edImg)+'") center/cover no-repeat;'):'';
+    const pubImgBgStyle=pubHasImg?('width:100%;max-height:420px;min-height:180px;background:#000 url("'+this.bgUrl(pubImg)+'") center/contain no-repeat;background-size:contain;'):'';
+
+    const recentClientChips=st.recentClients.map(rcid=>{const c=db.clients[rcid];if(!c)return null;const mid2=this.findMemberOf(rcid);if(!mid2)return null;return{name:c.name,onClick:()=>this.goToPost(mid2,rcid,st.month)};}).filter(Boolean);
+    const sInfo=this.storageInfo();
+    const storageBarStyle='height:100%;border-radius:3px;background:'+(sInfo.pct>80?RED:sInfo.pct>50?YELLOW:GREEN)+';width:'+sInfo.pct+'%;transition:width .3s;';
+    const storageLabel=this._remote?'Dados salvos no banco online · todos veem a mesma versão':(sInfo.usedMB+' MB usados neste navegador (~'+sInfo.pct+'% do limite)');
+    const dashClients=[];
+    for(const mid in db.members){const m=db.members[mid];for(const c of m.clients||[]){const info=db.clients[c];if(!info)continue;
+      dashClients.push({name:info.name,meta:m.label+' · Squad '+m.squad+' · '+info.posts+' post'+(info.posts>1?'s':'')+'/mês',onOpen:()=>this.goToPost(mid,c,st.month),onRemove:()=>this.removeClient(c,mid)});}}
+    dashClients.sort((x,y)=>x.name.localeCompare(y.name,'pt-BR'));
+    const syncMap={ok:['Online · sincronizado','#3fd17a'],saving:['Salvando…','#ff7a1a'],off:['Sem conexão com o banco','#ff5a4f'],local:['Modo local (só neste aparelho)','#737373']};
+    const sm2=syncMap[st.sync]||syncMap.local;
+    const syncLabel=sm2[0],syncDotStyle='width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;background:'+sm2[1]+';box-shadow:0 0 0 3px '+sm2[1]+'33;';
+    const panelOnlyLateLabel=st.panelOnlyLate?'✓ Só atrasados':'Só atrasados';
+    const panelOnlyLateStyle='border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;'+(st.panelOnlyLate?('background:'+RED_D+';color:'+RED+';border:1px solid '+RED+'4d;'):('background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);'));
+    const criGoToPosts=()=>this.goToPost(st.criMember,st.criClient,st.month);
+
+    return{
+      view:st.view,isDashboard:st.view==='dashboard',isTracker:st.view==='tracker',isPanel:st.view==='panel',isCriativos:st.view==='criativos',isRelatorio:st.view==='relatorio',isClientes:st.view==='clientes',isInsights:st.view==='insights',
+      toggleNav:this.toggleNav,closeNav:this.closeNav,navCls:st.navOpen?'rp-open':'',
+      navTitle:({dashboard:'Dashboard',tracker:'Posts',criativos:'Criativos',clientes:'Clientes e Equipe'})[st.view]||'Dashboard',
+      isLegenda:st.view==='legenda',goLegenda:this.goLegenda,navLegendaStyle:this.navBase(st.view==='legenda'),
+      navLegendaBoxStyle:'width:14px;height:14px;border:1.5px solid '+(st.view==='legenda'?GOLD:'#737373')+';border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;',
+      navLegendaDotStyle:'width:6px;height:6px;border-radius:50%;background:'+(st.view==='legenda'?GOLD:'#737373')+';',
+      capHasImg:!!st.capImg,capNoImg:!st.capImg,capImgStyle:st.capImg?('width:100%;height:320px;background:#0a0a0a url("'+this.bgUrl(st.capImg)+'") center/contain no-repeat;'):'',
+      capNotes:st.capNotes,capSetNotes:this.capSetNotes,capHandleImg:this.capHandleImg,capRemoveImg:this.capRemoveImg,
+      gerarLegendaIA:this.gerarLegendaIA,capSpin:st.capSpin,capErr:st.capErr,capOut:st.capOut,capHasOut:!!st.capOut,capEmpty:!st.capOut&&!st.capErr&&!st.capSpin,
+      capBtnLabel:st.capSpin?'Lendo a imagem…':'✨ Gerar legenda',copyCapOut:this.copyCapOut,capCopyLabel:st.capCopyLabel,
+      syncLabel,syncDotStyle,dashClients,hasDashClients:dashClients.length>0,noDashClients:dashClients.length===0,dashClientsCount:dashClients.length,
+      showDbWarn:location.protocol!=='file:'&&(st.sync==='local'||st.sync==='off'),
+      dbWarnText:st.sync==='off'?'Sem conexão com o banco online agora. O que você alterar fica só neste aparelho até a conexão voltar.':'Banco online não conectado: as alterações ficam só neste navegador e os outros não veem. Na Vercel, conecte o Upstash for Redis em Storage e faça Redeploy.',squadBtns,psearch:st.psearch,onPSearch:this.onPSearch,pShow:!!pq,pResults,pNoResults:!!pq&&pResults.length===0,
+      criFilter:st.criFilter,setCriFilter:this.setCriFilter,criCountLabel,edSaving:st.edSaving,edSaveLabel:st.edSaving?'Salvando…':'Salvar',
+      goDashboard:this.goDashboard,goTracker:this.goTracker,goPanel:this.goPanel,goCriativos:this.goCriativos,goRelatorio:this.goRelatorio,goClientes:this.goClientes,goInsights:this.goInsights,
+      navDashStyle,navTrackerStyle,navPanelStyle,navCriativosStyle,navRelatorioStyle,navClientesStyle,navInsightsStyle,
+      navDashDotStyle,navTrackerBoxStyle,navTrackerCircleStyle,navPanelBarStyle,navCriativosBoxStyle,navCriativosSunStyle,navRelBarStyle,navInsightsBoxStyle,navInsightsDotStyle,navClientesCircle1Style,navClientesCircle2Style,
+      qsearchWrapRef:this.qsearchWrapRef,qsearch:st.qsearch,onQSearch:this.onQSearch,onQSearchFocus:this.onQSearchFocus,qShow:st.qShow,qResults,qHasResults:qResults.length>0,qNoResults:qResults.length===0,
+
+      selectStyle,inputStyle,yearsList,dashMonthsList,trackerMonthsList,panelMonthsList,relMonthsList,
+      dashYear:st.dashYear,setDashYear:this.setDashYear,trackerYear:st.trackerYear,setTrackerYear:this.setTrackerYear,
+      panelYear:st.panelYear,setPanelYear:this.setPanelYear,relYear:st.relYear,setRelYear:this.setRelYear,
+
+      dashMonth:st.dashMonth,setDashMonth:this.setDashMonth,kpis,dashChartMonth,dashPct,dashTrendText,dashTrendStyle,donutArcs,donutLegend,monthBars,squadCards,memberRowsStats,hasMembers,noMembers,alertItems,hasAlerts:alertItems.length>0,noAlerts:alertItems.length===0,
+
+      squad,squadsList,setSquad:this.setSquad,squadChipLabel,squadChipMeta,memberChips,
+      clientSel:st.clientSel,setClientSel:this.setClientSel,clientOptions,hasClientOptions:clientOptions.length>0,noClientOptions:clientOptions.length===0,
+      month:st.month,setMonth:this.setMonth,
+      hasClient,noClient,sDone,sLeft,progFrac,sBadgeStyle,sBadgeLabel,progBarStyle,postsGrid,postsContainerStyle,postsViewToggleLabel,togglePostsView:this.togglePostsView,
+      ritmoStyle,ritmoIcon,ritmoText,pinNoteText,pinNoteStyle,openPinNote:this.openPinNote,
+      gerarWpp:this.gerarWpp,resetMonth:this.resetMonth,wppShown:st.wppShown,wppText:st.wppText,copyWpp:this.copyWpp,copyWppLabel:st.wppCopyLabel,wppHasLink,wppLink,
+
+      panelSquad:st.panelSquad,setPanelSquad:this.setPanelSquad,panelMember:st.panelMember,setPanelMember:this.setPanelMember,panelMemberOptions,panelMonth:st.panelMonth,setPanelMonth:this.setPanelMonth,
+      panelCards,hasPanelCards:panelCards.length>0,noPanelCards:panelCards.length===0,panelOnlyLateLabel,panelOnlyLateStyle,setPanelOnlyLate:this.setPanelOnlyLate,
+
+      criSquad:st.criSquad,setCriSquad:this.setCriSquad,criMember:st.criMember,setCriMember:this.setCriMember,criMemberOptions,criClient:st.criClient,setCriClient:this.setCriClient,
+      criClientOptions,criHasClients:criClientOptions.length>0,criNoClients:criClientOptions.length===0,criativosImgs,hasCriativos:criativosImgs.length>0,noCriativos:criativosImgs.length===0,criGoToPosts,
+
+      relSquad:st.relSquad,setRelSquad:this.setRelSquad,relMember:st.relMember,setRelMember:this.setRelMember,relMemberOptions,relClient:st.relClient,setRelClient:this.setRelClient,
+      relClientOptions,relHasClients:relClientOptions.length>0,relNoClients:relClientOptions.length===0,relMonth:st.relMonth,setRelMonth:this.setRelMonth,
+      gerarRelatorio:this.gerarRelatorio,gerarDias:this.gerarDias,relSpin:st.relSpin,relHasOut:!!st.relOut,relOutTitle:st.relOut?.title,relOutText:st.relOut?.text,copyRel:this.copyRel,copyRelLabel:st.relCopyLabel,
+
+      insSquad:st.insSquad,setInsSquad:this.setInsSquad,insMember:st.insMember,setInsMember:this.setInsMember,insMemberOptions,insClient:st.insClient,setInsClient:this.setInsClient,
+      insClientOptions,insHasClients:insClientOptions.length>0,insNoClients:insClientOptions.length===0,
+      gerarInsights:this.gerarInsights,insSpin:st.insSpin,insHasOut:Array.isArray(st.insOut),insBlocks:Array.isArray(st.insOut)?st.insOut.map(b=>({title:b.title,text:b.text,copyLabel:'Copiar',onCopy:this.copyInsBlock(b.text)})):[],insEmptyNote:st.insOut==='empty',
+
+      exportBackup:this.exportBackup,triggerImport:this.triggerImport,importRef:this.importRef,onImportFile:this.onImportFile,
+      subTabClientesStyle:'font-size:13px;font-weight:500;padding:10px 18px;border:none;background:transparent;color:'+(st.subview==='clientes'?'#f5f5f5':'#737373')+';cursor:pointer;border-bottom:2px solid '+(st.subview==='clientes'?GOLD:'transparent')+';',
+      subTabMembrosStyle:'font-size:13px;font-weight:500;padding:10px 18px;border:none;background:transparent;color:'+(st.subview==='membros'?'#f5f5f5':'#737373')+';cursor:pointer;border-bottom:2px solid '+(st.subview==='membros'?GOLD:'transparent')+';',
+      goSubClientes:this.goSubClientes,goSubMembros:this.goSubMembros,isSubClientes:st.subview==='clientes',isSubMembros:st.subview==='membros',
+
+      ncSquad:st.ncSquad,setNcSquad:this.setNcSquad,ncMember:st.ncMember,setNcMember:this.setNcMember,ncMemberOptions,ncName:st.ncName,setNcName:this.setNcName,ncEnter:this.ncEnter,
+      ncPosts:st.ncPosts,setNcPosts:this.setNcPosts,ncPhone:st.ncPhone,setNcPhone:this.setNcPhone,postCountOptions:[1,2,3,4,5,6,7,8,9,10],
+      addClient:this.addClient,ncMsg:st.ncMsg,ncMsgStyle:'color:'+(st.ncMsgErr?RED:GREEN)+';',
+      clientRows,hasClientRows:clientRows.length>0,noClientRows:clientRows.length===0,
+
+      nmSquad:st.nmSquad,setNmSquad:this.setNmSquad,nmName:st.nmName,setNmName:this.setNmName,nmEnter:this.nmEnter,addMember:this.addMember,nmMsg:st.nmMsg,nmMsgStyle:'color:'+(st.nmMsgErr?RED:GREEN)+';',
+      memberRows,hasMemberRows:memberRows.length>0,noMemberRows:memberRows.length===0,
+
+      toastShow:!!st.toast,toastMsg:st.toast?.msg,toastAccentStyle,
+      recentClientChips,hasRecent:recentClientChips.length>0,storageBarStyle,storageLabel,avatarColorOptions,edAvatarCircleStyle,edImgBigStyle,edImgSmallStyle,pubImgBgStyle,
+
+      isEditorModal,isPublishModal,isConfirmModal,isPinModal,isClientEditModal,
+      onBackdropClick:this.onBackdropClick,closeModal:this.closeModal,
+      modalTitle,edImg,edHasImg,edNoImg,edIgUser,edAvatarInitial,edCaptionPreview,edCaption:st.edCaption,edSetCaption:this.edSetCaption,edHandleImg:this.edHandleImg,edRemoveImg:this.edRemoveImg,
+      generateCaption:this.generateCaption,edSpin:st.edSpin,edHasOut,edSuggestions,savePostDraft:this.savePostDraft,
+
+      pubTitle,pubDesc,pubHasImg,pubNoImg,pubImg,pubCapText,pubPosted,pubNotPosted,downloadPostImg:this.downloadPostImg,copyPubCap:this.copyPubCap,copyPubLabel:st.pubCopyLabel,confirmPosted:this.confirmPosted,undoPosted:this.undoPosted,
+
+      confirmTitle,confirmDesc,confirmYesStyle,confirmYesLabel,confirmYes:this.confirmYes,
+
+      pinClientName,pinDraft:st.pinDraft,setPinDraft:this.setPinDraft,savePinNote:this.savePinNote,
+
+      ceName:st.ceName,setCeName:this.setCeName,cePosts:st.cePosts,setCePosts:this.setCePosts,cePhone:st.cePhone,setCePhone:this.setCePhone,saveClientEdit:this.saveClientEdit
+    };
+  }
+}
+
+</script>
+</body>
+</html>
