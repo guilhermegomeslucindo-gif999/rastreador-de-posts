@@ -399,11 +399,17 @@ a:hover{color:#ff9447;}
                       <sc-if value="{{ p.noImg }}"><span style="font-size:9px;color:#737373;letter-spacing:.4px;text-align:center;padding:8px;">📎 arraste<br>imagem</span></sc-if>
                     </div>
                     <div style="{{ p.mainStyle }}">
-                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                         <span style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;flex:1;">{{ p.title }}</span>
-                        <span style="{{ p.badgeStyle }}">{{ p.badgeLabel }}</span>
                         <sc-if value="{{ p.overdueLabel }}"><span style="font-size:9px;font-weight:700;color:oklch(66% 0.19 25);">{{ p.overdueLabel }}</span></sc-if>
                       </div>
+                      <!-- Status selector -->
+                      <select value="{{ p.currentStatus }}" onChange="{{ p.onChangeStatus }}" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:600;color:#f5f5f5;cursor:pointer;margin-bottom:6px;outline:none;">
+                        <option value="draft">Rascunho</option>
+                        <option value="review">Em aprovação</option>
+                        <option value="approved">Aprovado</option>
+                        <option value="posted">Postado</option>
+                      </select>
                       <div style="{{ p.subStyle }}">{{ p.sub }}</div>
                       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;">
                         <sc-if value="{{ p.showAdd }}">
@@ -742,6 +748,9 @@ a:hover{color:#ff9447;}
             <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
               <button onClick="{{ downloadPostImg }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">⬇ Baixar</button>
               <button onClick="{{ copyPubCap }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">{{ copyPubLabel }}</button>
+              <sc-if value="{{ pubHasImg }}">
+                <button onClick="{{ pubRemoveImg }}" style="background:oklch(66% 0.19 25 / .12);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">🗑 Remover imagem</button>
+              </sc-if>
             </div>
           </div>
           <!-- Gerador de legenda IA -->
@@ -1403,6 +1412,12 @@ class Component extends DCLogic {
   setPanelOnlyLate=()=>this.setState({panelOnlyLate:!this.state.panelOnlyLate});
   edHandleImg=(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;e.target.value='';this.resizeImage(f,(out,err)=>{if(err)this.showToast(err,'bad');else this.setState({edImg:out});});};
   edRemoveImg=()=>this.setState({edImg:null});
+  pubRemoveImg=()=>{
+    const{modal}=this.state;if(!modal||modal.kind!=='publish')return;
+    const post=this.db.data[modal.mid][modal.cid][this.state.month]['p'+modal.idx];if(!post)return;
+    post.img=null;post.ready=false;
+    this.saveData();this.showToast('Imagem removida.','warn');this.forceUpdate();
+  };
   bgUrl(src){
     src=String(src||'');if(!src.startsWith('data:'))return src;
     if(!this._blobCache)this._blobCache=new Map();
@@ -1588,7 +1603,6 @@ class Component extends DCLogic {
     {key:'draft',    label:'Rascunho',      color:'#737373', bg:'#1a1a1a'},
     {key:'review',   label:'Em aprovação',  color:YELLOW,    bg:YELLOW_D},
     {key:'approved', label:'Aprovado',      color:'oklch(68% 0.14 250)', bg:'oklch(68% 0.14 250 / .14)'},
-    {key:'scheduled',label:'Agendado',      color:GOLD,      bg:'rgba(255,122,26,.14)'},
     {key:'posted',   label:'Postado',       color:GREEN,     bg:GREEN_D},
   ];
   statusMeta(s){return this.POST_STATUSES.find(x=>x.key===s)||this.POST_STATUSES[0];}
@@ -1817,7 +1831,7 @@ class Component extends DCLogic {
       {key:'grade',label:'Grade',icon:'⊞'},
       {key:'calendar',label:'Calendário',icon:'📅'},
     ].map(v=>({...v,active:st.postsViewMode===v.key,style:'font-size:11px;font-weight:600;padding:5px 12px;border-radius:7px;cursor:pointer;border:1px solid '+(st.postsViewMode===v.key?'rgba(255,122,26,.5)':'rgba(255,255,255,.12)')+';background:'+(st.postsViewMode===v.key?'rgba(255,122,26,.12)':'transparent')+';color:'+(st.postsViewMode===v.key?GOLD:'#a3a3a3')+';',onClick:()=>this.setPostsView(v.key)}));
-    const statusFilterBtns=[{key:'all',label:'Todos'},{key:'draft',label:'Rascunho'},{key:'review',label:'Em aprovação'},{key:'approved',label:'Aprovado'},{key:'scheduled',label:'Agendado'},{key:'posted',label:'Postado'}].map(s=>({
+    const statusFilterBtns=[{key:'all',label:'Todos'},{key:'draft',label:'Rascunho'},{key:'review',label:'Em aprovação'},{key:'approved',label:'Aprovado'},{key:'posted',label:'Postado'}].map(s=>({
       key:s.key,label:s.label,
       style:'font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;border:none;background:'+(st.statusFilter===s.key?'rgba(255,122,26,.18)':'transparent')+';color:'+(st.statusFilter===s.key?GOLD:'#737373')+';',
       onClick:()=>this.setStatusFilter(s.key)
@@ -1870,6 +1884,8 @@ class Component extends DCLogic {
           statusOptions:this.POST_STATUSES.map(s=>({key:s.key,label:s.label,active:pStatus===s.key,onClick:()=>this.setPostStatus(cid,st.member,i,s.key)})),
           onDragOver:this.onCardDragOver,onDragLeave:this.onCardDragLeave,onDrop:this.onCardDrop(cid,st.member,i),
           onComment:()=>this.openComments(cid,st.member,i),
+          onChangeStatus:(e)=>this.setPostStatus(cid,st.member,i,e.target.value),
+          currentStatus:pStatus,
           onDuplicate:this.duplicatePostFromPrev(cid,st.member,i),
           approveLabel:p.pendingApproval?'✓ Aprovado pelo cliente':'⏳ Aguardando aprovação',
           approveStyle:'border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;border:1px solid '+(p.pendingApproval?'oklch(84% 0.15 92 / .4)':'rgba(255,255,255,.12)')+';color:'+(p.pendingApproval?YELLOW:'#a3a3a3')+';',
@@ -2191,7 +2207,7 @@ class Component extends DCLogic {
       modalTitle,edImg,edHasImg,edNoImg,edIgUser,edAvatarInitial,edCaptionPreview,edCaption:st.edCaption,edSetCaption:this.edSetCaption,edHandleImg:this.edHandleImg,edRemoveImg:this.edRemoveImg,
       generateCaption:this.generateCaption,edSpin:st.edSpin,edHasOut,edSuggestions,savePostDraft:this.savePostDraft,
 
-      pubTitle,pubDesc,pubHasImg,pubNoImg,pubImg,pubCapText,pubPosted,pubNotPosted,downloadPostImg:this.downloadPostImg,copyPubCap:this.copyPubCap,copyPubLabel:st.pubCopyLabel,confirmPosted:this.confirmPosted,undoPosted:this.undoPosted,
+      pubTitle,pubDesc,pubHasImg,pubNoImg,pubImg,pubCapText,pubPosted,pubNotPosted,downloadPostImg:this.downloadPostImg,copyPubCap:this.copyPubCap,copyPubLabel:st.pubCopyLabel,confirmPosted:this.confirmPosted,undoPosted:this.undoPosted,pubRemoveImg:this.pubRemoveImg,
       pubTabFeed,pubTabGrade,pubSetTab:this.pubSetTab,pubTabStyle:(tab)=>'flex:1;padding:6px 10px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;'+(st.pubActiveTab===tab?'background:#ff7a1a;color:#0a0a0a;':'background:transparent;color:#737373;'),
       pubIgUser,pubIgAvatarStyle,pubIgAvatarInitial,pubCaptionPreview,pubCaptionLong,pubGradeItems,
       openLightbox:this.openLightbox,pubLightbox,pubLbImg,pubLbCounter,pubLbThumbs,closeLightbox:this.closeLightbox,pubLbPrev:this.pubLbPrev,pubLbNext:this.pubLbNext,pubLbKey:this.pubLbKey,
