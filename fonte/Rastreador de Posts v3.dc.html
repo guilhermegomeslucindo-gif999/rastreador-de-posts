@@ -613,23 +613,160 @@ a:hover{color:#ff9447;}
 </sc-if>
 
 <sc-if value="{{ isPublishModal }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;">
-    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:28px;max-width:460px;width:92%;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
-      <button onClick="{{ closeModal }}" style="position:absolute;top:14px;right:14px;background:#222222;border:1px solid rgba(255,255,255,.12);border-radius:6px;width:28px;height:28px;color:#a3a3a3;cursor:pointer;font-size:12px;">✕</button>
-      <div style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px;">{{ pubTitle }}</div>
-      <div style="font-size:12px;color:#a3a3a3;line-height:1.7;margin-bottom:18px;">{{ pubDesc }}</div>
-      <sc-if value="{{ pubHasImg }}" hint-placeholder-val="{{ false }}"><div style="border-radius:10px;overflow:hidden;background:#1a1a1a;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);"><div style="{{ pubImgBgStyle }}"></div></div></sc-if>
-      <sc-if value="{{ pubNoImg }}"><div style="width:100%;border-radius:10px;background:#1a1a1a;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:#737373;font-size:12px;">Sem imagem salva</div></sc-if>
-      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-        <button onClick="{{ downloadPostImg }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">⬇ Baixar imagem</button>
-        <button onClick="{{ copyPubCap }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;">{{ copyPubLabel }}</button>
+  <!-- Lightbox fullscreen -->
+  <sc-if value="{{ pubLightbox }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:#000;z-index:1100;display:flex;flex-direction:column;align-items:center;justify-content:center;" onKeyDown="{{ pubLbKey }}">
+      <div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.1);border-radius:20px;padding:5px 16px;font-size:12px;color:#fff;">{{ pubLbCounter }}</div>
+      <button onClick="{{ closeLightbox }}" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);border:none;border-radius:6px;width:32px;height:32px;color:#fff;cursor:pointer;font-size:16px;">✕</button>
+      <button onClick="{{ pubLbPrev }}" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;border-radius:50%;width:40px;height:40px;color:#fff;cursor:pointer;font-size:18px;">‹</button>
+      <button onClick="{{ pubLbNext }}" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;border-radius:50%;width:40px;height:40px;color:#fff;cursor:pointer;font-size:18px;">›</button>
+      <div style="max-width:90vw;max-height:82vh;display:flex;align-items:center;justify-content:center;">
+        <img src="{{ pubLbImg }}" style="max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px;" />
       </div>
-      <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Legenda</div>
-      <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;white-space:pre-line;max-height:200px;overflow-y:auto;margin-bottom:6px;">{{ pubCapText }}</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <!-- Miniaturas -->
+      <div style="display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding:0 20px;max-width:90vw;">
+        <sc-for items="{{ pubLbThumbs }}">
+          <div onClick="{{ item.onClick }}" style="{{ item.thumbStyle }}"></div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <!-- Modal principal -->
+  <div onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:overlayIn .18s ease;padding:12px;">
+    <div class="rp-modal" style="position:relative;background:#131313;border:1px solid rgba(255,255,255,.12);border-radius:16px;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;animation:modalIn .22s cubic-bezier(.16,1,.3,1);">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:#131313;z-index:10;border-radius:16px 16px 0 0;">
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;">{{ pubTitle }}</div>
+          <div style="font-size:11px;color:#737373;margin-top:2px;">{{ pubDesc }}</div>
+        </div>
+        <button onClick="{{ closeModal }}" style="background:#222;border:1px solid rgba(255,255,255,.12);border-radius:6px;width:30px;height:30px;color:#a3a3a3;cursor:pointer;font-size:13px;flex-shrink:0;">✕</button>
+      </div>
+      <!-- Body 2 colunas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:400px;">
+        <!-- Coluna esquerda: previa -->
+        <div style="padding:20px 20px 20px 24px;border-right:1px solid rgba(255,255,255,.07);">
+          <!-- Abas -->
+          <div style="display:flex;gap:4px;margin-bottom:16px;background:#0d0d0d;border-radius:8px;padding:3px;">
+            <button onClick="{{ pubSetTab('feed') }}" style="{{ pubTabStyle('feed') }}">Feed</button>
+            <button onClick="{{ pubSetTab('grade') }}" style="{{ pubTabStyle('grade') }}">Grade</button>
+          </div>
+          <!-- Tab Feed -->
+          <sc-if value="{{ pubTabFeed }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#1a1a1a;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.07);">
+              <!-- Header ig -->
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+                <div style="{{ pubIgAvatarStyle }}">{{ pubIgAvatarInitial }}</div>
+                <div>
+                  <div style="font-size:11px;font-weight:700;color:#f5f5f5;">{{ pubIgUser }}</div>
+                  <div style="font-size:10px;color:#737373;">Patrocinado</div>
+                </div>
+                <div style="margin-left:auto;color:#a3a3a3;font-size:16px;">•••</div>
+              </div>
+              <!-- Imagem -->
+              <sc-if value="{{ pubHasImg }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ openLightbox }}" style="cursor:zoom-in;position:relative;">
+                  <div style="{{ pubImgBgStyle }}"></div>
+                  <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);border-radius:4px;padding:3px 6px;font-size:10px;color:#fff;">⛶ Tela cheia</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ pubNoImg }}"><div style="width:100%;aspect-ratio:1;background:#222;display:flex;align-items:center;justify-content:center;color:#555;font-size:12px;">Sem imagem</div></sc-if>
+              <!-- Acoes ig -->
+              <div style="padding:10px 12px 4px;">
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+                  <span style="font-size:20px;cursor:pointer;">🤍</span>
+                  <span style="font-size:20px;cursor:pointer;">💬</span>
+                  <span style="font-size:20px;cursor:pointer;">📤</span>
+                  <span style="margin-left:auto;font-size:20px;cursor:pointer;">🔖</span>
+                </div>
+                <div style="font-size:11px;color:#f5f5f5;line-height:1.5;">
+                  <span style="font-weight:700;">{{ pubIgUser }}</span>
+                  <span> {{ pubCaptionPreview }}</span>
+                  <sc-if value="{{ pubCaptionLong }}" hint-placeholder-val="{{ false }}"><span style="color:#737373;cursor:pointer;"> ... mais</span></sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+          <!-- Tab Grade -->
+          <sc-if value="{{ pubTabGrade }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#1a1a1a;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.07);">
+              <div style="font-size:10px;color:#737373;margin-bottom:10px;text-align:center;">Como vai aparecer na grade do perfil</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">
+                <sc-for items="{{ pubGradeItems }}">
+                  <div style="{{ item.style }}"></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        <!-- Coluna direita: legenda + IA -->
+        <div style="padding:20px 24px 20px 20px;display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <div style="font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Legenda</div>
+            <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.7;white-space:pre-line;max-height:150px;overflow-y:auto;">{{ pubCapText }}</div>
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+              <button onClick="{{ downloadPostImg }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">⬇ Baixar</button>
+              <button onClick="{{ copyPubCap }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;">{{ copyPubLabel }}</button>
+            </div>
+          </div>
+          <!-- Gerador de legenda IA -->
+          <div style="border:1px solid rgba(255,122,26,.2);border-radius:10px;padding:14px;background:rgba(255,122,26,.04);">
+            <div style="font-size:11px;font-weight:700;color:#ff7a1a;margin-bottom:10px;">✨ Gerar legenda com IA</div>
+            <!-- Estado inicial: escolha de referencia -->
+            <sc-if value="{{ pubAiIdle }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;color:#a3a3a3;margin-bottom:10px;">Qual referencia usar?</div>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#f5f5f5;">
+                  <input type="radio" name="pubAiRef" value="all" checked style="accent-color:#ff7a1a;"> Todas as legendas deste cliente
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#f5f5f5;">
+                  <input type="radio" name="pubAiRef" value="img"> Somente esta imagem
+                </label>
+              </div>
+              <button onClick="{{ gerarLegendaPub }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer;width:100%;">Gerar 3 opcoes</button>
+            </sc-if>
+            <!-- Carregando -->
+            <sc-if value="{{ pubAiLoading }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#a3a3a3;">
+                <div style="width:14px;height:14px;border:2px solid rgba(255,122,26,.25);border-top-color:#ff7a1a;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;"></div>
+                Lendo a imagem e gerando legendas...
+              </div>
+            </sc-if>
+            <!-- Erro -->
+            <sc-if value="{{ pubAiError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;color:#ff5a4f;margin-bottom:8px;">{{ pubAiErrorMsg }}</div>
+              <button onClick="{{ pubAiRetry }}" style="background:transparent;color:#ff7a1a;border:1px solid rgba(255,122,26,.3);border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer;">Tentar novamente</button>
+            </sc-if>
+            <!-- Resultados -->
+            <sc-if value="{{ pubAiHasResults }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <sc-for items="{{ pubAiVariations }}">
+                  <div style="background:#1a1a1a;border-radius:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.06);">
+                    <div style="font-size:10px;font-weight:700;color:#ff7a1a;margin-bottom:6px;">{{ item.label }}</div>
+                    <div style="font-size:11px;color:#e5e5e5;line-height:1.6;white-space:pre-line;max-height:80px;overflow-y:auto;">{{ item.text }}</div>
+                    <div style="display:flex;gap:6px;margin-top:8px;">
+                      <button onClick="{{ item.onUse }}" style="background:#ff7a1a;color:#0a0a0a;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;">Usar</button>
+                      <button onClick="{{ item.onCopy }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;">{{ item.copyLabel }}</button>
+                    </div>
+                  </div>
+                </sc-for>
+                <!-- Chips de ajuste -->
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <sc-for items="{{ pubAiChips }}">
+                    <button onClick="{{ item.onClick }}" style="background:rgba(255,122,26,.1);color:#ff7a1a;border:1px solid rgba(255,122,26,.25);border-radius:20px;padding:4px 10px;font-size:10px;cursor:pointer;">{{ item.label }}</button>
+                  </sc-for>
+                </div>
+                <button onClick="{{ pubAiRetry }}" style="background:transparent;color:#737373;border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:6px 12px;font-size:10px;cursor:pointer;text-align:center;">↺ Gerar novamente</button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding:16px 24px;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap;">
         <sc-if value="{{ pubPosted }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Fechar</button>
-          <button onClick="{{ undoPosted }}" style="background:oklch(66% 0.19 25 / .14);color:oklch(66% 0.19 25);border:1px solid oklch(66% 0.19 25 / .3);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Desfazer publicação</button>
+          <button onClick="{{ undoPosted }}" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Desfazer publicacao</button>
         </sc-if>
         <sc-if value="{{ pubNotPosted }}">
           <button onClick="{{ closeModal }}" style="background:transparent;color:#a3a3a3;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;">Cancelar</button>
@@ -717,6 +854,9 @@ class Component extends DCLogic {
     modal:null,
     edCaption:'',edImg:null,edSpin:false,edOut:null,
     pubCopyLabel:'📋 Copiar legenda',
+    pubActiveTab:'feed',
+    pubAiState:'idle',pubAiVariations:[],pubAiErrorMsg:'',pubAiRefMode:'all',pubAiChipExtra:'',
+    pubLightbox:false,pubLbIdx:0,
     pinDraft:'',
     ceName:'',cePosts:'5',cePhone:'',ceAvatarColor:'',
     toast:null,
@@ -1260,7 +1400,7 @@ class Component extends DCLogic {
   useEdCap=(text)=>()=>this.setState({edCaption:text});
 
   // ═ publish modal
-  openPostPublish=(cid,mid,idx)=>{this.setState({modal:{kind:'publish',cid,mid,idx},pubCopyLabel:'📋 Copiar legenda'});};
+  openPostPublish=(cid,mid,idx)=>{this.setState({modal:{kind:'publish',cid,mid,idx},pubCopyLabel:'📋 Copiar legenda',pubActiveTab:'feed',pubAiState:'idle',pubAiVariations:[],pubAiErrorMsg:'',pubLightbox:false,pubLbIdx:0});};
   confirmPosted=()=>{
     const{cid,mid,idx}=this.state.modal;const post=this.db.data[mid][cid][this.state.month]['p'+idx];
     const now=new Date();post.done=true;post.ready=true;post.date=now.toLocaleDateString('pt-BR');post.time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
@@ -1287,6 +1427,63 @@ class Component extends DCLogic {
   closeModal=()=>this.setState({modal:null});
   onBackdropClick=(e)=>{if(e.target===e.currentTarget)this.closeModal();};
   confirmYes=()=>{if(this.state.modal&&this.state.modal.onYes)this.state.modal.onYes();};
+
+  // ═ modal publish - abas / lightbox / IA
+  pubSetTab=(tab)=>()=>this.setState({pubActiveTab:tab});
+  openLightbox=()=>{
+    const st=this.state;if(!st.modal||st.modal.kind!=='publish')return;
+    const post=this.db.data[st.modal.mid][st.modal.cid][st.month]['p'+st.modal.idx];
+    if(!post.img)return;
+    // coleta todas as imagens do mes para navegacao
+    const c=this.db.clients[st.modal.cid];const total=c?c.posts:5;
+    const allPosts=this.db.data[st.modal.mid][st.modal.cid][st.month]||{};
+    const imgs=[];for(let i=1;i<=total;i++){const p=allPosts['p'+i];if(p&&p.img)imgs.push({img:p.img,idx:i});}
+    const cur=imgs.findIndex(x=>x.idx===st.modal.idx);
+    this._lbImgs=imgs;
+    this.setState({pubLightbox:true,pubLbIdx:Math.max(0,cur)});
+  };
+  closeLightbox=()=>this.setState({pubLightbox:false});
+  pubLbPrev=()=>{const n=this._lbImgs?this._lbImgs.length:0;if(n<2)return;this.setState(s=>({pubLbIdx:(s.pubLbIdx-1+n)%n}));};
+  pubLbNext=()=>{const n=this._lbImgs?this._lbImgs.length:0;if(n<2)return;this.setState(s=>({pubLbIdx:(s.pubLbIdx+1)%n}));};
+  pubLbKey=(e)=>{if(e.key==='ArrowLeft')this.pubLbPrev();else if(e.key==='ArrowRight')this.pubLbNext();else if(e.key==='Escape')this.closeLightbox();};
+  pubAiRetry=()=>this.setState({pubAiState:'idle',pubAiVariations:[],pubAiErrorMsg:''});
+  gerarLegendaPub=async()=>{
+    const st=this.state;if(!st.modal||st.modal.kind!=='publish')return;
+    const post=this.db.data[st.modal.mid][st.modal.cid][st.month]['p'+st.modal.idx];
+    const c=this.db.clients[st.modal.cid];
+    this.setState({pubAiState:'loading',pubAiVariations:[],pubAiErrorMsg:''});
+    // coleta legendas de referencia
+    let refs=[];
+    const refMode=document.querySelector('input[name="pubAiRef"]:checked')?.value||'all';
+    if(refMode==='all'){
+      const allMoData=this.db.data[st.modal.mid][st.modal.cid]||{};
+      for(const mo in allMoData){const moData=allMoData[mo];for(const k in moData){const p=moData[k];if(p&&p.caption&&p.caption.trim()&&p.done)refs.push(p.caption.trim());}}
+    }
+    const imgVal=post.img||null;
+    const imgKey=imgVal&&!imgVal.startsWith('data:')?(imgVal.match(/[?&]k=([^&]+)/)||[])[1]||null:null;
+    try{
+      const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        clientName:c?.name||'',clientNiche:'marmoraria',fixedNote:'',
+        img:imgVal&&imgVal.startsWith('data:')?imgVal:null,imgKey,
+        referencesCaptions:refs,voiceProfile:c?.voiceProfile||null
+      })});
+      const j=await r.json();
+      if(!r.ok)throw new Error(j.error||'Erro '+r.status);
+      const variations=(j.variations||[]).map((v,i)=>({label:v.label||('Opcao '+(i+1)),text:v.text||'',copyLabel:'Copiar',onCopy:this._copyAiVar(v.text,i),onUse:this._useAiVar(v.text)}));
+      // salvar voiceProfile no cliente
+      if(j.voiceProfileUpdate&&c){c.voiceProfile=j.voiceProfileUpdate;this._scheduleSave();}
+      this.setState({pubAiState:'results',pubAiVariations:variations});
+    }catch(e){this.setState({pubAiState:'error',pubAiErrorMsg:(e&&e.message)||'Erro ao gerar legenda. Verifique se a OPENAI_API_KEY esta configurada na Vercel.'});}
+  };
+  _copyAiVar=(text,i)=>()=>{try{navigator.clipboard.writeText(text);}catch(e){}
+    const vars=this.state.pubAiVariations.map((v,j)=>j===i?{...v,copyLabel:'Copiado!'}:v);
+    this.setState({pubAiVariations:vars});setTimeout(()=>{const v2=this.state.pubAiVariations.map((v,j)=>j===i?{...v,copyLabel:'Copiar'}:v);this.setState({pubAiVariations:v2});},2000);};
+  _useAiVar=(text)=>()=>{
+    const st=this.state;if(!st.modal||st.modal.kind!=='publish')return;
+    const post=this.db.data[st.modal.mid][st.modal.cid][st.month]['p'+st.modal.idx];
+    post.caption=text;post.ready=!!(post.img||text);this._scheduleSave();
+    this.setState({pubAiState:'idle',pubAiVariations:[]});
+  };
 
   // ═ whatsapp
   gerarWpp=()=>{
@@ -1465,28 +1662,12 @@ class Component extends DCLogic {
       pinNoteText=note.trim()?note:'Nenhum lembrete definido. Clique em Editar para adicionar.';
       pinNoteStyle='font-size:12px;color:'+(note.trim()?'#a3a3a3':'#737373')+';line-height:1.6;white-space:pre-line;'+(note.trim()?'':'font-style:italic;');
 
-      const today=new Date();
-      const curYear=today.getFullYear();const curMonth=today.getMonth()+1;
-      // st.month formato "YYYY-MM"
-      const [selYear,selMonth]=st.month.split('-').map(Number);
-      const isCurMonth=(selYear===curYear&&selMonth===curMonth);
-      const isPastMonth=(selYear<curYear)||(selYear===curYear&&selMonth<curMonth);
-      const day=today.getDate();const week=Math.min(4,Math.ceil(day/7));
+      const today=new Date();const day=today.getDate();const week=Math.min(4,Math.ceil(day/7));
       const expected=Math.round((week/4)*total);
       ritmoStyle='display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:20px;font-size:12px;';
-      if(!isCurMonth&&!isPastMonth){
-        // mês futuro — sem alerta
-        ritmoStyle='display:none;';ritmoIcon='';ritmoText='';
-      } else if(isPastMonth){
-        // mês passado — resumo final
-        if(done>=total){ritmoStyle+='background:'+GREEN_D+';border:1px solid '+GREEN+'33;color:'+GREEN+';';ritmoIcon='✅';ritmoText='Mês concluído — '+done+' de '+total+' posts realizados. Ótimo trabalho!';}
-        else{ritmoStyle+='background:'+RED_D+';border:1px solid '+RED+'33;color:'+RED+';';ritmoIcon='📋';ritmoText='Mês encerrado com '+done+' de '+total+' posts realizados.';}
-      } else {
-        // mês atual — verifica ritmo por semana
-        if(done>=expected){ritmoStyle+='background:'+GREEN_D+';border:1px solid '+GREEN+'33;color:'+GREEN+';';ritmoIcon='✅';ritmoText='No ritmo certo — '+done+' de '+total+' já feitos (semana '+week+' de 4). Continue assim!';}
-        else if(done>=expected-1){ritmoStyle+='background:'+YELLOW_D+';border:1px solid '+YELLOW+'33;color:'+YELLOW+';';ritmoIcon='⚠️';ritmoText='Quase lá — esperado '+expected+' até a semana '+week+', você tem '+done+'. Não deixa acumular!';}
-        else{ritmoStyle+='background:'+RED_D+';border:1px solid '+RED+'33;color:'+RED+';';ritmoIcon='🚨';ritmoText='Atrasado — já deveria ter '+expected+' posts até a semana '+week+', mas só tem '+done+'. Hora de agir!';}
-      }
+      if(done>=expected){ritmoStyle+='background:'+GREEN_D+';border:1px solid '+GREEN+'33;color:'+GREEN+';';ritmoIcon='✅';ritmoText='No ritmo certo — '+done+' de '+total+' já feitos (semana '+week+' de 4). Continue assim!';}
+      else if(done>=expected-1){ritmoStyle+='background:'+YELLOW_D+';border:1px solid '+YELLOW+'33;color:'+YELLOW+';';ritmoIcon='⚠️';ritmoText='Quase lá — esperado '+expected+' até a semana '+week+', você tem '+done+'. Não deixa acumular!';}
+      else{ritmoStyle+='background:'+RED_D+';border:1px solid '+RED+'33;color:'+RED+';';ritmoIcon='🚨';ritmoText='Atrasado — já deveria ter '+expected+' posts até a semana '+week+', mas só tem '+done+'. Hora de agir!';}
     }
     const phoneDigits=(cdata?.phone||'').replace(/\D/g,'');
     const wppHasLink=!!phoneDigits;
@@ -1620,11 +1801,57 @@ class Component extends DCLogic {
       if(st.edOut)edSuggestions=st.edOut.map((t,i)=>({tag:'Sugestão '+(i+1),text:t,copyLabel:'Copiar',onCopy:this.copyEdCap(t,i),onUse:this.useEdCap(t)}));
     }
     let pubTitle='',pubDesc='',pubHasImg=false,pubNoImg=true,pubImg='',pubCapText='',pubPosted=false,pubNotPosted=false;
+    let pubTabFeed=true,pubTabGrade=false,pubIgUser='',pubIgAvatarStyle='',pubIgAvatarInitial='';
+    let pubCaptionPreview='',pubCaptionLong=false,pubGradeItems=[];
+    let pubAiIdle=false,pubAiLoading=false,pubAiError=false,pubAiHasResults=false;
+    let pubAiErrorMsg=st.pubAiErrorMsg||'',pubAiVariations=st.pubAiVariations||[];
+    let pubLightbox=st.pubLightbox||false,pubLbCounter='',pubLbImg='',pubLbThumbs=[];
+    let pubAiChips=[];
     if(isPublishModal){
       const post=db.data[modal.mid][modal.cid][st.month]['p'+modal.idx];pubPosted=!!post.done;pubNotPosted=!pubPosted;
-      pubTitle=pubPosted?('Post '+modal.idx+' publicado'):('Publicar Post '+modal.idx);
-      pubDesc=pubPosted?('Publicado em '+(post.date||'')+(post.time?' às '+post.time:'')):'Baixe a imagem, copie a legenda e publique no Instagram. Depois marque como postado.';
+      pubTitle=pubPosted?('Post '+modal.idx+' publicado'):('Post '+modal.idx);
+      pubDesc=pubPosted?('Publicado em '+(post.date||'')+(post.time?' as '+post.time:'')):'Baixe a imagem, copie a legenda e publique no Instagram. Depois marque como postado.';
       pubHasImg=!!post.img;pubNoImg=!post.img;pubImg=post.img||'';pubCapText=(post.caption||'').trim()||'Sem legenda';
+      // abas
+      pubTabFeed=st.pubActiveTab!=='grade';pubTabGrade=st.pubActiveTab==='grade';
+      // previa instagram
+      const c=db.clients[modal.cid];
+      pubIgUser='@'+(c?.name||'cliente').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20);
+      pubIgAvatarInitial=(c?.name||'?').charAt(0).toUpperCase();
+      const avColor=c?.avatarColor||'#ff7a1a';
+      pubIgAvatarStyle='width:32px;height:32px;border-radius:50%;background:'+avColor+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0a0a0a;flex-shrink:0;border:2px solid rgba(255,122,26,.6);';
+      const cap=(post.caption||'').trim();
+      pubCaptionPreview=cap.slice(0,125);pubCaptionLong=cap.length>125;
+      // grade
+      const total=c?c.posts:5;const allPosts=db.data[modal.mid][modal.cid][st.month]||{};
+      for(let i=1;i<=Math.min(total,9);i++){
+        const p=allPosts['p'+i];const hasPImg=p&&p.img;const isCurrent=i===modal.idx;
+        const bg=hasPImg?'url("'+this.bgUrl(p.img)+'") center/cover no-repeat #1a1a1a':'#1a1a1a';
+        pubGradeItems.push({style:'aspect-ratio:3/4;background:'+bg+';border-radius:2px;'+(isCurrent?'border:2px solid #ff7a1a;':'border:2px solid transparent;')+'cursor:pointer;'});
+      }
+      // imagem cover style (aspect auto com contain)
+      // AI state
+      const ais=st.pubAiState||'idle';
+      pubAiIdle=ais==='idle';pubAiLoading=ais==='loading';pubAiError=ais==='error';pubAiHasResults=ais==='results'&&pubAiVariations.length>0;
+      // lightbox
+      if(pubLightbox&&this._lbImgs){
+        const lbIdx=st.pubLbIdx||0;const cur=this._lbImgs[lbIdx];
+        if(cur)pubLbImg=this.bgUrl(cur.img);
+        pubLbCounter=(lbIdx+1)+' / '+this._lbImgs.length;
+        pubLbThumbs=this._lbImgs.map((im,i)=>({onClick:()=>this.setState({pubLbIdx:i}),thumbStyle:'width:48px;height:48px;border-radius:4px;background:url("'+this.bgUrl(im.img)+'") center/cover no-repeat #111;border:2px solid '+(i===lbIdx?'#ff7a1a':'transparent')+';cursor:pointer;flex-shrink:0;'}));
+      }
+      // chips de ajuste
+      pubAiChips=['Mais curta','Mais formal','Mais descontraida','Sem emoji','Adicionar CTA WhatsApp','Trocar hashtags'].map(lbl=>({label:lbl,onClick:async()=>{
+        const vars=st.pubAiVariations;if(!vars.length)return;
+        const baseTexts=vars.map(v=>v.text).join('
+---
+');
+        this.setState({pubAiState:'loading'});
+        try{const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientName:db.clients[modal.cid]?.name||'',clientNiche:'marmoraria',referencesCaptions:[baseTexts],voiceProfile:db.clients[modal.cid]?.voiceProfile||null,chipAdjust:lbl})});
+        const j=await r.json();if(!r.ok)throw new Error(j.error||'Erro');
+        const nvars=(j.variations||[]).map((v,i)=>({label:v.label||('Opcao '+(i+1)),text:v.text||'',copyLabel:'Copiar',onCopy:this._copyAiVar(v.text,i),onUse:this._useAiVar(v.text)}));
+        this.setState({pubAiState:'results',pubAiVariations:nvars});}catch(e){this.setState({pubAiState:'error',pubAiErrorMsg:(e&&e.message)||'Erro'});}
+      }}));
     }
     let confirmTitle='',confirmDesc='',confirmYesStyle='',confirmYesLabel='';
     if(isConfirmModal){confirmTitle=modal.title;confirmDesc=modal.desc;confirmYesLabel=modal.danger?'Excluir':'Confirmar';
@@ -1637,7 +1864,7 @@ class Component extends DCLogic {
     if(isEditorModal)edAvatarCircleStyle='width:24px;height:24px;border-radius:50%;background:'+(db.clients[modal.cid]?.avatarColor||GOLD)+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0a0a0a;flex-shrink:0;';
     const edImgBigStyle=edHasImg?('width:100%;max-height:260px;min-height:150px;border-radius:8px;background:#000 url("'+this.bgUrl(edImg)+'") center/cover no-repeat;'):'';
     const edImgSmallStyle=edHasImg?('width:100%;height:100%;background:#000 url("'+this.bgUrl(edImg)+'") center/cover no-repeat;'):'';
-    const pubImgBgStyle=pubHasImg?('width:100%;max-height:420px;min-height:180px;background:#000 url("'+this.bgUrl(pubImg)+'") center/contain no-repeat;background-size:contain;'):'';
+    const pubImgBgStyle=pubHasImg?('width:100%;min-height:200px;max-height:400px;aspect-ratio:1;background:#000 url("'+this.bgUrl(pubImg)+'") center/contain no-repeat;background-size:contain;'):'';
 
     const recentClientChips=st.recentClients.map(rcid=>{const c=db.clients[rcid];if(!c)return null;const mid2=this.findMemberOf(rcid);if(!mid2)return null;return{name:c.name,onClick:()=>this.goToPost(mid2,rcid,st.month)};}).filter(Boolean);
     const sInfo=this.storageInfo();
@@ -1723,6 +1950,10 @@ class Component extends DCLogic {
       generateCaption:this.generateCaption,edSpin:st.edSpin,edHasOut,edSuggestions,savePostDraft:this.savePostDraft,
 
       pubTitle,pubDesc,pubHasImg,pubNoImg,pubImg,pubCapText,pubPosted,pubNotPosted,downloadPostImg:this.downloadPostImg,copyPubCap:this.copyPubCap,copyPubLabel:st.pubCopyLabel,confirmPosted:this.confirmPosted,undoPosted:this.undoPosted,
+      pubTabFeed,pubTabGrade,pubSetTab:this.pubSetTab,pubTabStyle:(tab)=>'flex:1;padding:6px 10px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;'+(st.pubActiveTab===tab?'background:#ff7a1a;color:#0a0a0a;':'background:transparent;color:#737373;'),
+      pubIgUser,pubIgAvatarStyle,pubIgAvatarInitial,pubCaptionPreview,pubCaptionLong,pubGradeItems,
+      openLightbox:this.openLightbox,pubLightbox,pubLbImg,pubLbCounter,pubLbThumbs,closeLightbox:this.closeLightbox,pubLbPrev:this.pubLbPrev,pubLbNext:this.pubLbNext,pubLbKey:this.pubLbKey,
+      pubAiIdle,pubAiLoading,pubAiError,pubAiHasResults,pubAiErrorMsg,pubAiVariations,pubAiChips,gerarLegendaPub:this.gerarLegendaPub,pubAiRetry:this.pubAiRetry,
 
       confirmTitle,confirmDesc,confirmYesStyle,confirmYesLabel,confirmYes:this.confirmYes,
 
